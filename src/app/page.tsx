@@ -276,7 +276,15 @@ function NameHighlight({ children }: { children: React.ReactNode }) {
   );
 }
 
-function BringToTopIcon({ active }: { active: boolean }) {
+function BringToTopIcon({
+  active,
+  disabled = false,
+  error = false,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  error?: boolean;
+}) {
   return (
     <svg
       width="24"
@@ -286,12 +294,31 @@ function BringToTopIcon({ active }: { active: boolean }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <path d="M7 14L12 9L17 14H7Z" fill={active ? "white" : "black"} />
+      <path
+        d="M7 14L12 9L17 14H7Z"
+        fill={
+          error
+            ? "#DC2626"
+            : disabled
+              ? "rgba(0,0,0,0.2)"
+              : active
+                ? "white"
+                : "black"
+        }
+      />
     </svg>
   );
 }
 
-function ShowHideIcon({ active }: { active: boolean }) {
+function ShowHideIcon({
+  active,
+  disabled = false,
+  error = false,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  error?: boolean;
+}) {
   return (
     <svg
       width="24"
@@ -301,7 +328,20 @@ function ShowHideIcon({ active }: { active: boolean }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <circle cx="12" cy="12" r="4" fill={active ? "white" : "black"} />
+      <circle
+        cx="12"
+        cy="12"
+        r="4"
+        fill={
+          error
+            ? "#DC2626"
+            : disabled
+              ? "rgba(0,0,0,0.2)"
+              : active
+                ? "white"
+                : "black"
+        }
+      />
     </svg>
   );
 }
@@ -339,6 +379,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [showOnlySelected, setShowOnlySelected] = useState(
     initialTab !== null,
   );
+  const [invalidControlFlash, setInvalidControlFlash] = useState<HoveredControl>(
+    null,
+  );
   const [visibleWorkImageCount, setVisibleWorkImageCount] = useState(
     workImageUrls.length > workLoadMoreThreshold
       ? workLoadMoreThreshold
@@ -351,6 +394,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const displayClearTimeoutRef = useRef<number | null>(null);
   const previewTimeoutRef = useRef<number | null>(null);
   const entryPhaseTimeoutRef = useRef<number | null>(null);
+  const invalidControlFlashTimeoutRef = useRef<number | null>(null);
   const homeEntryDividerRef = useRef<HTMLDivElement | null>(null);
   const homeIdentityDividerRef = useRef<HTMLDivElement | null>(null);
   const entryOverlayHeaderRef = useRef<HTMLDivElement | null>(null);
@@ -516,6 +560,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       if (entryPhaseTimeoutRef.current !== null) {
         window.clearTimeout(entryPhaseTimeoutRef.current);
       }
+      if (invalidControlFlashTimeoutRef.current !== null) {
+        window.clearTimeout(invalidControlFlashTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -598,6 +645,19 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
   const isBringToTopActive =
     activePanelTab !== null && sectionPriority === activePanelTab;
+
+  const triggerDisabledControlFeedback = (control: HoveredControl) => {
+    if (!control) {
+      return;
+    }
+    setInvalidControlFlash(control);
+    if (invalidControlFlashTimeoutRef.current !== null) {
+      window.clearTimeout(invalidControlFlashTimeoutRef.current);
+    }
+    invalidControlFlashTimeoutRef.current = window.setTimeout(() => {
+      setInvalidControlFlash(null);
+    }, 420);
+  };
 
   const cursorControlLabel =
     !hoveredControl || !activePanelTab
@@ -989,7 +1049,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 <button
                   type="button"
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
-                    activePanelTab
+                    invalidControlFlash === "bring"
+                      ? "border-red-600 bg-transparent control-error-wiggle"
+                      : activePanelTab
                       ? isBringToTopActive
                         ? "border-black bg-black"
                         : "border-black/50 bg-transparent"
@@ -997,6 +1059,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   }`}
                   onClick={() => {
                     if (!activePanelTab) {
+                      triggerDisabledControlFeedback("bring");
                       return;
                     }
                     handleBringSelectedToTop();
@@ -1012,22 +1075,30 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   aria-label="Bring selected section group to top"
                   aria-disabled={!activePanelTab}
                   style={
-                    activePanelTab
+                    invalidControlFlash === "bring"
+                      ? { cursor: "not-allowed" }
+                      : activePanelTab
                       ? undefined
                       : {
                           borderColor: "rgba(0, 0, 0, 0.4)",
                           color: "rgba(0, 0, 0, 0.4)",
-                          cursor: "wait",
+                          cursor: "not-allowed",
                           opacity: 0.85,
                         }
                   }
                 >
-                  <BringToTopIcon active={activePanelTab ? isBringToTopActive : false} />
+                  <BringToTopIcon
+                    active={activePanelTab ? isBringToTopActive : false}
+                    disabled={!activePanelTab}
+                    error={invalidControlFlash === "bring"}
+                  />
                 </button>
                 <button
                   type="button"
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
-                    activePanelTab
+                    invalidControlFlash === "show"
+                      ? "border-red-600 bg-transparent control-error-wiggle"
+                      : activePanelTab
                       ? showOnlySelected
                         ? "border-black bg-black"
                         : "border-black/50 bg-transparent"
@@ -1035,6 +1106,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   }`}
                   onClick={() => {
                     if (!activePanelTab) {
+                      triggerDisabledControlFeedback("show");
                       return;
                     }
                     setShowOnlySelected((prev) => !prev);
@@ -1050,17 +1122,23 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   aria-label="Toggle entries-only visibility"
                   aria-disabled={!activePanelTab}
                   style={
-                    activePanelTab
+                    invalidControlFlash === "show"
+                      ? { cursor: "not-allowed" }
+                      : activePanelTab
                       ? undefined
                       : {
                           borderColor: "rgba(0, 0, 0, 0.4)",
                           color: "rgba(0, 0, 0, 0.4)",
-                          cursor: "wait",
+                          cursor: "not-allowed",
                           opacity: 0.85,
                         }
                   }
                 >
-                  <ShowHideIcon active={activePanelTab ? showOnlySelected : false} />
+                  <ShowHideIcon
+                    active={activePanelTab ? showOnlySelected : false}
+                    disabled={!activePanelTab}
+                    error={invalidControlFlash === "show"}
+                  />
                 </button>
               </div>
             </div>

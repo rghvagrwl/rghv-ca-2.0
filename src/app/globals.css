@@ -88,6 +88,10 @@ a[aria-disabled="true"] {
   animation: selector-jolt 260ms cubic-bezier(0.22, 1.35, 0.32, 1);
 }
 
+.control-error-wiggle {
+  animation: control-error-wiggle 380ms ease-in-out;
+}
+
 @keyframes selector-jolt {
   0% {
     transform: translateX(0) scale(1);
@@ -97,6 +101,27 @@ a[aria-disabled="true"] {
   }
   100% {
     transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes control-error-wiggle {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
   }
 }
 
