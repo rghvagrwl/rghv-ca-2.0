@@ -98,7 +98,6 @@ const cursorTrailPalette = [
   "#4B68FF",
   "#FF8A00",
 ];
-const workTags = ["BRAND", "UI/UX", "GRAPHIC", "LOGO"] as const;
 const workImageUrls = [
   "https://www.figma.com/api/mcp/asset/1f578917-2b9f-4975-ade0-5f8f453478e7",
   "https://www.figma.com/api/mcp/asset/6d463607-4c27-4209-a8e7-7f3b3e4a506f",
@@ -152,9 +151,11 @@ function HeaderWithDivider({
 function SectionHeader({
   activeTab,
   secondary,
+  onClick,
 }: {
   activeTab: PanelTabId | null;
   secondary: string;
+  onClick?: () => void;
 }) {
   const isContextActive = activeTab === "context";
   const contextColor =
@@ -162,7 +163,12 @@ function SectionHeader({
 
   return (
     <HeaderWithDivider>
-      <div className="flex items-center gap-3">
+      <button
+        type="button"
+        className="flex w-full items-center gap-3 text-left"
+        onClick={onClick}
+        aria-label={`Show context ${secondary.toLowerCase()} section`}
+      >
         <span
           className="px-1.5 py-0.5 text-[12px] font-medium tracking-[0.05em]"
           style={
@@ -180,7 +186,7 @@ function SectionHeader({
         >
           {secondary}
         </span>
-      </div>
+      </button>
     </HeaderWithDivider>
   );
 }
@@ -373,6 +379,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [cursorBadgeMode, setCursorBadgeMode] = useState<CursorBadgeMode>(null);
   const [cursorBadgePosition, setCursorBadgePosition] = useState({ x: 0, y: 0 });
   const [hoveredControl, setHoveredControl] = useState<HoveredControl>(null);
+  const [hoveredLocationToggle, setHoveredLocationToggle] = useState(false);
+  const [isEntriesHeaderHovered, setIsEntriesHeaderHovered] = useState(false);
   const [sectionPriority, setSectionPriority] = useState<PanelTabId | null>(
     initialTab,
   );
@@ -669,6 +677,11 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         : showOnlySelected
           ? "SHOW ALL"
           : `SHOW ${activePanelTab.toUpperCase()} ONLY`;
+  const cursorLocationLabel = hoveredLocationToggle
+    ? locationKey === "waterloo"
+      ? "SHOW CALGARY"
+      : "SHOW WATERLOO"
+    : null;
 
   const getSectionOrder = (group: PanelTabId) => {
     const baseOrder: Record<PanelTabId, number> = {
@@ -703,7 +716,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
   return (
     <main className="relative min-h-screen bg-background pb-20 pt-4">
-      {cursorControlLabel || cursorBadgeMode ? (
+      {cursorControlLabel || cursorLocationLabel || cursorBadgeMode ? (
         <div
           className="pointer-events-none fixed z-[120]"
           style={{
@@ -715,6 +728,10 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           {cursorControlLabel ? (
             <span className="inline-flex items-center bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
               {cursorControlLabel}
+            </span>
+          ) : cursorLocationLabel ? (
+            <span className="inline-flex items-center bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
+              {cursorLocationLabel}
             </span>
           ) : cursorBadgeMode === "read-more" ? (
             <span className="inline-flex items-center bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
@@ -776,6 +793,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
         }`}
+        style={{ cursor: entryPhase === "entry-visible" ? "sw-resize" : "auto" }}
         onClick={closeEntry}
         onMouseEnter={(event) => {
           if (entryPhase === "entry-visible") {
@@ -887,6 +905,14 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 type="button"
                 className="inline-flex flex-1 items-center justify-between pr-3 transition-colors hover:text-black/60"
                 onClick={handleLocationToggle}
+                onMouseEnter={(event) => {
+                  setHoveredLocationToggle(true);
+                  updateCursorBadgePosition(event);
+                }}
+                onMouseMove={updateCursorBadgePosition}
+                onMouseLeave={() => {
+                  setHoveredLocationToggle(false);
+                }}
                 aria-label={`Switch location and time to ${
                   locationKey === "waterloo" ? "Calgary" : "Waterloo"
                 }`}
@@ -906,7 +932,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               <div className="flex items-center gap-4">
                 <button
                   type="button"
-                  className="flex h-6 w-6 items-center justify-center border border-black/50 bg-transparent text-[16px] leading-none text-black transition-all duration-150"
+                  className="flex h-6 w-6 items-center justify-center border border-black/50 bg-[#F7F7F7] text-[16px] leading-none text-black transition-all duration-150"
                   onClick={() => setIsIntroOpen((prev) => !prev)}
                   aria-label={isIntroOpen ? "Close intro note" : "Open intro note"}
                 >
@@ -1000,7 +1026,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                       key={tab.id}
                       type="button"
                       onClick={() => togglePanelTab(tab.id)}
-                      className={`inline-flex h-6 items-center justify-center gap-1 border-[0.5px] border-black/50 px-2 py-[2px] text-[clamp(11px,0.76vw,12px)] font-medium leading-none transition-[transform,box-shadow,background-color,border-color,color] duration-350 ease-[cubic-bezier(0.22,1.35,0.32,1)] ${
+                      className={`inline-flex h-6 items-center justify-center gap-1 border-[0.5px] border-black/50 bg-[#F7F7F7] px-2 py-[2px] text-[clamp(11px,0.76vw,12px)] font-medium leading-none transition-[transform,box-shadow,background-color,border-color,color] duration-350 ease-[cubic-bezier(0.22,1.35,0.32,1)] ${
                         isSelectorBouncing ? "selector-jolt" : ""
                       }`}
                       style={
@@ -1050,12 +1076,12 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   type="button"
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
                     invalidControlFlash === "bring"
-                      ? "border-red-600 bg-transparent control-error-wiggle"
+                      ? "border-red-600 bg-[#F7F7F7] control-error-wiggle"
                       : activePanelTab
                       ? isBringToTopActive
                         ? "border-black bg-black"
-                        : "border-black/50 bg-transparent"
-                      : "border-black/50 bg-transparent"
+                        : "border-black/50 bg-[#F7F7F7]"
+                      : "border-black/50 bg-[#F7F7F7]"
                   }`}
                   onClick={() => {
                     if (!activePanelTab) {
@@ -1081,9 +1107,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                       ? undefined
                       : {
                           borderColor: "rgba(0, 0, 0, 0.4)",
+                          backgroundColor: "#F7F7F7",
                           color: "rgba(0, 0, 0, 0.4)",
                           cursor: "not-allowed",
-                          opacity: 0.85,
                         }
                   }
                 >
@@ -1097,12 +1123,12 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   type="button"
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
                     invalidControlFlash === "show"
-                      ? "border-red-600 bg-transparent control-error-wiggle"
+                      ? "border-red-600 bg-[#F7F7F7] control-error-wiggle"
                       : activePanelTab
                       ? showOnlySelected
                         ? "border-black bg-black"
-                        : "border-black/50 bg-transparent"
-                      : "border-black/50 bg-transparent"
+                        : "border-black/50 bg-[#F7F7F7]"
+                      : "border-black/50 bg-[#F7F7F7]"
                   }`}
                   onClick={() => {
                     if (!activePanelTab) {
@@ -1128,9 +1154,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                       ? undefined
                       : {
                           borderColor: "rgba(0, 0, 0, 0.4)",
+                          backgroundColor: "#F7F7F7",
                           color: "rgba(0, 0, 0, 0.4)",
                           cursor: "not-allowed",
-                          opacity: 0.85,
                         }
                   }
                 >
@@ -1176,7 +1202,11 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         <div className="flex flex-col" style={{ order: getSectionOrder("context") }}>
           <section className={reveal(160).className} style={reveal(160).style}>
           <div ref={homeIdentityDividerRef}>
-            <SectionHeader activeTab={activePanelTab} secondary="IDENTITY" />
+            <SectionHeader
+              activeTab={activePanelTab}
+              secondary="IDENTITY"
+              onClick={() => togglePanelTab("context")}
+            />
           </div>
 
           <div className="mt-2 grid gap-6 md:grid-cols-2 xl:gap-6">
@@ -1193,7 +1223,11 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           </section>
 
           <section className={`mt-8 ${reveal(240).className}`} style={reveal(240).style}>
-            <SectionHeader activeTab={activePanelTab} secondary="EXTERNAL" />
+            <SectionHeader
+              activeTab={activePanelTab}
+              secondary="EXTERNAL"
+              onClick={() => togglePanelTab("context")}
+            />
 
             <div className="mt-3 flex flex-wrap gap-1.5">
               {externalLinks.map((link) => (
@@ -1260,7 +1294,12 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         <div className="flex flex-col" style={{ order: getSectionOrder("work") }}>
           <section className={reveal(300).className} style={reveal(300).style}>
           <HeaderWithDivider className="mb-2">
-            <div className="flex items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted text-left"
+              onClick={() => togglePanelTab("work")}
+              aria-label="Show work section"
+            >
               <div className="flex items-center gap-2">
                 <span
                   className="px-1.5 py-0.5"
@@ -1282,18 +1321,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               </div>
 
               <span className="font-medium">2024</span>
-
-              <div className="flex items-center gap-1">
-                {workTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="border-x border-t border-black/10 px-1.5 py-0.5"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
+            </button>
           </HeaderWithDivider>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -1337,17 +1365,26 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
         {!(showOnlySelected && activePanelTab !== "entries") ? (
         <div className="flex flex-col" style={{ order: getSectionOrder("entries") }}>
+          {(() => {
+            const entriesReveal = reveal(340);
+            return (
           <section
-          className={reveal(340).className}
-          style={reveal(340).style}
+          className={entriesReveal.className}
+          style={{
+            ...entriesReveal.style,
+            cursor:
+              entryPhase === "closed" && cursorBadgeMode === "read-more"
+                ? "nesw-resize"
+                : "pointer",
+          }}
           onMouseEnter={(event) => {
-            if (entryPhase === "closed") {
+            if (entryPhase === "closed" && !isEntriesHeaderHovered) {
               setCursorBadgeMode("read-more");
               updateCursorBadgePosition(event);
             }
           }}
           onMouseMove={(event) => {
-            if (entryPhase === "closed") {
+            if (entryPhase === "closed" && !isEntriesHeaderHovered) {
               updateCursorBadgePosition(event);
             }
           }}
@@ -1369,7 +1406,24 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 activePanelTab === "entries" ? "bg-[#FFE500]" : ""
               }
             >
-              <div className="flex items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted text-left"
+                onMouseEnter={() => {
+                  setIsEntriesHeaderHovered(true);
+                  if (cursorBadgeMode === "read-more") {
+                    setCursorBadgeMode(null);
+                  }
+                }}
+                onMouseLeave={() => {
+                  setIsEntriesHeaderHovered(false);
+                }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  togglePanelTab("entries");
+                }}
+                aria-label="Show entries section"
+              >
                 <div className="flex items-center gap-2">
                   <span
                     className="px-1.5 py-0.5"
@@ -1391,7 +1445,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 </div>
 
                 <span className="font-medium">{entryYear}</span>
-              </div>
+              </button>
             </HeaderWithDivider>
           </div>
 
@@ -1405,6 +1459,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             <div className="hidden md:block" aria-hidden="true" />
           </div>
           </section>
+            );
+          })()}
         </div>
         ) : null}
         </div>
