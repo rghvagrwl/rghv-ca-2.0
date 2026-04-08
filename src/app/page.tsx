@@ -843,7 +843,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 entryPhase === "entry-visible" ? "opacity-100 delay-140" : "opacity-0"
               }`}
             >
-              <div className="text-[16px] leading-[1.5] text-black/80 text-left">
+              <div className="text-[16px] leading-[1.5] text-black/80 text-justify">
                 {entryContentParagraphs.map((paragraph) => (
                   <p key={paragraph} className="mb-4" style={{ fontFeatureSettings: "'salt' 1" }}>
                     {paragraph}
@@ -897,7 +897,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       >
         <section className="grid gap-10 min-[940px]:grid-cols-3 xl:gap-20">
           <div
-            className={`w-full max-w-[480px] ${reveal(0).className}`}
+            className={`w-full max-w-[480px] min-[940px]:order-3 ${reveal(0).className}`}
             style={reveal(0).style}
           >
             <div className="flex items-center justify-between text-[12px] uppercase tracking-[0.02em] text-black/40">
@@ -1010,7 +1010,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           </div>
 
           <div
-            className={`w-full max-w-[480px] ${reveal(90).className}`}
+            className={`w-full max-w-[480px] min-[940px]:order-2 ${reveal(90).className}`}
             style={reveal(90).style}
           >
             <div className="flex items-center justify-between gap-2">
@@ -1188,7 +1188,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             </div>
           </div>
 
-          <div className="w-full max-w-[480px]" aria-hidden="true" />
+          <div className="w-full max-w-[480px] min-[940px]:order-1" aria-hidden="true" />
         </section>
 
         <div
@@ -1213,7 +1213,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             {identityColumns.map((column) => (
               <p
                 key={column.id}
-                className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/80 text-left`}
+                className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/80 text-justify`}
                 style={{ fontFeatureSettings: "'salt' 1" }}
               >
                 {column.content}
@@ -1451,7 +1451,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
           <div className="mt-2 grid gap-6 md:grid-cols-2">
             <p
-              className="text-[16px] leading-[1.5] text-black/40 text-left"
+              className="text-[16px] leading-[1.5] text-black/40 text-justify"
               style={{ fontFeatureSettings: "'salt' 1" }}
             >
               {entryExcerpt}
