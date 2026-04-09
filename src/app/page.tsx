@@ -2648,7 +2648,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                         <div className="flex items-start justify-start">
                           <button
                             type="button"
-                            className="bg-black/10 px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black"
+                            className="border border-black/20 bg-[#F7F7F7] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black/80"
                             onClick={(event) => {
                               event.stopPropagation();
                               if (expandedEntryId === entry.id) {
@@ -2802,7 +2802,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                     <div className="mt-2 flex justify-end">
                       <button
                         type="button"
-                        className="bg-black/10 px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black"
+                        className="border border-black/20 bg-[#F7F7F7] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black/80"
                         onClick={() =>
                           setVisibleWorkImageCountByProject((prev) => ({
                             ...prev,
