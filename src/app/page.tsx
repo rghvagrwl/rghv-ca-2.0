@@ -782,23 +782,30 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         setFooterDateLabel(dateLabel);
       }
 
-      const dateKey = new Intl.DateTimeFormat("en-CA", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(now);
-
       let city = "UNKNOWN";
       let country = "--";
+      let nextVisitsToday = 0;
+      let nextLastVisitorLabel = "UNKNOWN, --";
       try {
-        const response = await fetch("/api/geo", { cache: "no-store" });
+        const response = await fetch("/api/footer-stats", { cache: "no-store" });
         if (response.ok) {
-          const geo = (await response.json()) as { city?: string | null; country?: string | null };
-          if (geo.city) {
-            city = geo.city;
+          const footerStats = (await response.json()) as {
+            city?: string | null;
+            country?: string | null;
+            lastVisitorLabel?: string | null;
+            visitsToday?: number | null;
+          };
+          if (footerStats.city) {
+            city = footerStats.city;
           }
-          if (geo.country) {
-            country = geo.country;
+          if (footerStats.country) {
+            country = footerStats.country;
+          }
+          if (footerStats.lastVisitorLabel) {
+            nextLastVisitorLabel = footerStats.lastVisitorLabel;
+          }
+          if (typeof footerStats.visitsToday === "number") {
+            nextVisitsToday = footerStats.visitsToday;
           }
         }
       } catch {
@@ -808,22 +815,10 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       }
 
       const currentVisitorLabel = `${city}, ${country}`;
-      const storedLastVisitor = window.localStorage.getItem("rghv:last-visitor");
       if (isMounted) {
-        setLastVisitorLabel(storedLastVisitor ?? currentVisitorLabel);
+        setLastVisitorLabel(nextLastVisitorLabel === "UNKNOWN, --" ? currentVisitorLabel : nextLastVisitorLabel);
+        setVisitsToday(nextVisitsToday);
       }
-      window.localStorage.setItem("rghv:last-visitor", currentVisitorLabel);
-
-      const storedDate = window.localStorage.getItem("rghv:visit-date");
-      const storedCountRaw = window.localStorage.getItem("rghv:visit-count");
-      const storedCount = Number.parseInt(storedCountRaw ?? "0", 10);
-      const nextCount =
-        storedDate === dateKey ? (Number.isNaN(storedCount) ? 1 : storedCount + 1) : 1;
-      if (isMounted) {
-        setVisitsToday(nextCount);
-      }
-      window.localStorage.setItem("rghv:visit-date", dateKey);
-      window.localStorage.setItem("rghv:visit-count", String(nextCount));
     }, 0);
 
     return () => {
