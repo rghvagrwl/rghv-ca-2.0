@@ -32,6 +32,8 @@ body {
   font-family: var(--font-switzer), sans-serif;
   min-height: 100vh;
   margin: 0;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 a {
@@ -50,7 +52,8 @@ a[aria-disabled="true"] {
 }
 
 ::selection {
-  background: rgba(0, 0, 0, 0.12);
+  background: transparent;
+  color: inherit;
 }
 
 @utility container-frame {
@@ -82,6 +85,17 @@ a[aria-disabled="true"] {
   position: fixed;
   opacity: 0.95;
   transform: translate3d(0, 0, 0);
+}
+
+.no-save-media {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.trail-mode-button-active {
+  animation: trail-mode-button-rgb 3000ms steps(1, end) infinite;
 }
 
 .selector-jolt {
@@ -159,6 +173,27 @@ a[aria-disabled="true"] {
 .work-carousel {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes trail-mode-button-rgb {
+  0% {
+    background-color: #39ff14;
+  }
+  20% {
+    background-color: #ff4fd9;
+  }
+  40% {
+    background-color: #ffe500;
+  }
+  60% {
+    background-color: #00c8ff;
+  }
+  80% {
+    background-color: #ff8a00;
+  }
+  100% {
+    background-color: #ff5a6e;
+  }
 }
 
 .work-carousel::-webkit-scrollbar {

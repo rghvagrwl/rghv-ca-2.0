@@ -6,6 +6,18 @@ const identityBodyOne =
   " is a designer working across product, brand, and digital interfaces. His practice is shaped by observation, with a focus on micro interactions, emotional friction, and inconsistencies in how people experience interfaces. He believes design should feel clear and intuitive, where the decisions do not require explanation.";
 const identityBodyTwo =
   "His work aims to reduce friction and create systems that feel calm, precise, and easy to use. Influenced by the internet and contemporary visual culture, he is interested in how details shape understanding over time, and how consistency can make something feel more coherent the longer it is experienced.";
+const educationBody =
+  "Currently completing his first year at the University of Waterloo, Honours Global Business and Digital Arts, where he's focusing on design, business, and digital media. He graduated from high school in 2025.";
+const experienceBody =
+  "Over the last four years, he has taught himself visual and product design through personal projects and client work across startups and teams. Most recently, he interned part-time at PERMANENT© over his 1B study term.";
+const profileBodyOne =
+  "I spend a lot of time around things that feel visual or expressive. I got into photography after picking up a camera in 2024, and drawing has been something I’ve been into for as long as I can remember.";
+const profileBodyTwo =
+  "Music is almost always playing in the background, and I tend to cycle through hip hop, R&B, rap, and indie.";
+const profileBodyThree =
+  "My favorite film is Spider-Man: Into the Spider-Verse, and I gravitate toward creators who focus on storytelling and detail.";
+const profileBodyFour =
+  "Most of my time is spent at my desk. Otherwise, I’m probably doomscrolling, at the gym, or out for a walk when the weather is good.";
 
 const externalLinks = [
   { label: "LINKEDIN", href: "https://linkedin.com/in/rghv-agrwl", disabled: false },
@@ -29,19 +41,6 @@ const locations = {
 
 type LocationKey = keyof typeof locations;
 type PanelTabId = "context" | "work" | "entries";
-type EntryPhase =
-  | "closed"
-  | "main-fading-out"
-  | "entry-header-sliding"
-  | "entry-visible"
-  | "entry-header-return-prep"
-  | "entry-header-returning"
-  | "entry-fading-out";
-type DividerRect = {
-  top: number;
-  left: number;
-  width: number;
-};
 type CursorBadgeMode = "read-more" | "close-entry" | null;
 type HoveredControl = "bring" | "show" | "truncate" | null;
 type TrailSquare = {
@@ -100,6 +99,8 @@ const cursorTrailPalette = [
   "#4B68FF",
   "#FF8A00",
 ];
+const fixedBottomWorkProjectId = "no-category";
+const mixedContextSectionIds = ["context:education"] as const;
 const workProjects = [
   {
     id: "unordinary",
@@ -119,7 +120,7 @@ const workProjects = [
   {
     id: "minimum",
     title: "MINIMUM",
-    year: "2024",
+    year: "2022",
     images: [
       "/minimum/Minimum 1.png",
       "/minimum/Minimum 2.png",
@@ -132,13 +133,13 @@ const workProjects = [
   {
     id: "chrono",
     title: "CHRONO",
-    year: "2024",
+    year: "2026",
     images: ["/chrono/Chrono 1.png", "/chrono/Chrono 2.png"],
   },
   {
     id: "context",
     title: "CONTEXT",
-    year: "2024",
+    year: "2025",
     images: [
       "/context/Context 1.png",
       "/context/Context 2.png",
@@ -161,13 +162,13 @@ const workProjects = [
   {
     id: "faktor",
     title: "FAKTOR",
-    year: "2024",
+    year: "2022",
     images: ["/faktor/Name.png", "/faktor/Name-1.png", "/faktor/Name-2.png"],
   },
   {
     id: "instafleet",
     title: "INSTAFLEET",
-    year: "2024",
+    year: "2025",
     images: [
       "/instafleet/Instafleet 1.png",
       "/instafleet/Instafleet 2.png",
@@ -177,7 +178,7 @@ const workProjects = [
   {
     id: "merge-club",
     title: "MERGE CLUB",
-    year: "2024",
+    year: "2025",
     images: [
       "/merge club/Merge 1.png",
       "/merge club/Merge 2.png",
@@ -188,7 +189,7 @@ const workProjects = [
   {
     id: "on-deck-founders",
     title: "ON DECK FOUNDERS",
-    year: "2024",
+    year: "2025",
     images: [
       "/on deck founders/ODF 1.png",
       "/on deck founders/ODF 2.png",
@@ -199,19 +200,19 @@ const workProjects = [
   {
     id: "para",
     title: "PARA",
-    year: "2024",
+    year: "2022",
     images: ["/para/Para 1.png", "/para/Para 2.png"],
   },
   {
     id: "prism-collective",
     title: "PRISM COLLECTIVE",
-    year: "2024",
+    year: "2025",
     images: ["/prism collective/Prism 1.png", "/prism collective/Prism 2.png"],
   },
   {
     id: "socratica",
     title: "SOCRATICA",
-    year: "2024",
+    year: "2026",
     images: ["/socratica/Socratica 1.png", "/socratica/Socratica 2.png"],
   },
   {
@@ -220,32 +221,102 @@ const workProjects = [
     year: "2024",
     images: ["/zero email/Zero 1.png", "/zero email/Zero 2.png"],
   },
+  {
+    id: "no-category",
+    title: "NO CATEGORY",
+    images: [
+      "/uncategorized/Human 1.png",
+      "/uncategorized/Other 1.png",
+      "/uncategorized/Other 2.png",
+      "/uncategorized/Other 3.png",
+      "/uncategorized/Other 4.png",
+      "/uncategorized/Other 5.png",
+      "/uncategorized/Verse 1.png",
+      "/uncategorized/Verse 2.png",
+    ],
+  },
 ] as const;
-const workLoadMoreThreshold = 6;
+const workLoadMoreThreshold = 3;
 const workLoadMoreThresholdMobile = 3;
 const identityScaleClass = "text-[clamp(16px,1.35vw,20px)]";
-const entryTitle = "LIVING WITHOUT REGRETS";
-const entryYear = "2025";
-const entryExcerpt =
-  "A few months ago, a friend and I were walking home from the gym when he asked me what my biggest regrets were. It caught me off guard, but I answered honestly. I wished I had tried harder academically in high school. That maybe I should have gone down a more traditional academic route. I told him I regretted saying no to certain opportunities...";
-const entryContentParagraphs = [
+const entriesData = [
+  {
+    id: "living-without-regrets",
+    title: "LIVING WITHOUT REGRETS",
+    year: "2025",
+    excerpt:
+      "A few months ago, a friend and I were walking home from the gym when he asked me what my biggest regrets were. It caught me off guard, but I answered honestly. I told him I wished I had tried harder academically in high school, and that maybe I should have taken a more traditional path.",
+    paragraphs: [
   "A few months ago, a friend and I were walking home from the gym when he asked me what my biggest regrets were. It caught me off guard, but I answered honestly.",
-  "I wished I had tried harder academically in high school. That maybe I should have gone down a more traditional academic route. I told him I regretted saying no to certain opportunities. I regretted hesitating when I should have leaned in.",
-  "He shared some of his own regrets too. Different details, same tone. We both had moments we thought we could have handled better. But he finished with something simple:",
+  "I told him I wished I had tried harder academically in high school. That maybe I should have taken a more traditional path. I regretted saying no to certain opportunities. I regretted hesitating when I should have leaned in.",
+  "He shared some of his own. Different details, same feeling. But he ended with something simple.",
   "I don’t think it’s good to regret anything.",
   "It sounded unrealistic. Of course there are things to regret.",
-  "Maybe that’s the point?",
-  "The decisions I regretted were made based on who I was. My confidence level. My fears. My understanding of risk. It’s easy to say I should have known better. But I only know better because it happened.",
-  "Regret assumes there was a cleaner path. A smarter move. A more optimal version of events. Maybe there was.",
-  "It’s easy to look back at your past and reorganize it with the clarity you have now. You can see the red flags you missed. The better options you didn’t choose. The risks you were too hesitant to take. With distance, everything feels obvious. But that clarity only exists because you went through it.",
-  "You made decisions with the mindset you had at that time. With your level of confidence, your insecurities, your priorities, and your understanding of the world. Expecting your past self to operate with your current perspective doesn’t make sense. The growth came from the experience itself.",
-  "The relationship that didn’t last probably shaped how you understand commitment, communication, or even yourself. The academic path that feels uncertain might have given you a lens you wouldn’t trade now. The opportunity you declined may have clarified what actually matters to you.",
-  "None of those things are neutral. They leave an imprint.",
-  "Regret tends to assume that a different choice would have led to a cleaner outcome. Maybe it would have. But it also would have led to a different version of you. And there’s no guarantee that version would feel more aligned than the one you are now.",
-  "I’ve started to think of my past less as a collection of right and wrong decisions, and more as a sequence of necessary ones. Not perfect, not always efficient, but necessary for building perspective. The clarity I have today wasn’t available to me then. It was earned.",
-  "Living without regret doesn’t mean pretending everything worked out the way you hoped. It means accepting that even the missteps carried information. They sharpened your standards. They revealed what you value. They exposed your limits and expanded them.",
-  "You don’t need to rewrite your past to feel at peace with it. You just need to recognize that it built you in ways you couldn’t have predicted at the time.",
-  "If it shaped how you move today, then it wasn’t wasted.",
+  "But maybe that’s the point.",
+  "The decisions I regret were made based on who I was at the time. My confidence, my fears, my understanding of risk. It’s easy to say I should have known better, but I only know better because it happened.",
+  "Regret assumes there was a cleaner path. A better decision. A more optimal version of events. Maybe there was.",
+  "But that clarity only exists in hindsight.",
+  "You can look back and see what you missed. The risks you didn’t take. The options you didn’t choose. Everything feels obvious now, but it wasn’t obvious then.",
+  "You made decisions with the perspective you had. Your priorities, your insecurities, your understanding of the world. Expecting your past self to think like you do now doesn’t make sense. The growth came from going through it.",
+  "The relationship that didn’t last shapes how you understand people. The path that felt uncertain gives you a perspective you wouldn’t trade. The opportunities you turned down clarify what actually matters to you.",
+  "None of it is neutral. It leaves something behind.",
+  "Regret assumes a different choice would have led to a better outcome. Maybe it would have. But it also would have led to a different version of you. And there’s no guarantee that version would feel more right than the one you are now.",
+  "I’ve started to think of my past less as a series of right and wrong decisions, and more as a sequence of necessary ones. Not perfect, not always efficient, but necessary.",
+  "The clarity I have now wasn’t available to me then. It had to be earned.",
+  "Living without regret doesn’t mean everything worked out. It means recognizing that even the missteps carried something with them. They sharpened your standards. They revealed what you value. They expanded your limits.",
+  "You don’t need to rewrite your past to feel at peace with it.",
+  "You just need to recognize that it built you.",
+  "If it shapes how you move today, then it wasn’t wasted.",
+    ],
+  },
+  {
+    id: "on-perception-and-value",
+    title: "ELITISM",
+    year: "2025",
+    excerpt:
+      "Early on, I started to notice how quickly people form impressions of each other. Conversations often felt like quiet evaluations. Small pieces of information would shift the tone. The energy of an interaction could change almost instantly, sometimes without anything being said directly. It felt transactional. Like the value of the interaction had already been decided.",
+    paragraphs: [
+      "Early on, I started to notice how quickly people form impressions of each other. Conversations often felt like quiet evaluations. Small pieces of information would shift the tone. The energy of an interaction could change almost instantly, sometimes without anything being said directly. It felt transactional. Like the value of the interaction had already been decided.",
+      "Over time, it became clear how often people tie their identity to what they do. Not just as something they’re pursuing, but as something that defines their worth. And naturally, that lens extends outward, shaping how they see others. At first, it got to me. It was hard not to internalize it, to question whether I was being perceived a certain way for a reason. Whether there was something I was missing. But that way of seeing things didn’t feel complete.",
+      "I don’t think most of this comes from a bad place. If anything, it reflects the environments people come from. Years of pressure, competition, and reinforcement around certain paths being more valuable than others. It makes sense that people begin to see the world through that lens. In a way, it’s learned.",
+      "There were also moments where the tone of an interaction would shift again. More interest, more engagement, depending on what someone thought they understood about you. That stood out to me. Not in a way that made me resent it, but in a way that made me more aware of what was actually driving the interaction.",
+      "Over time, I stopped taking it personally. It became less about how I was being perceived, and more about what it revealed. Not something to judge, but something to recognize.",
+      "I also don’t think people stay fixed in that mindset. The way someone understands value, status, or identity at one point in their life is shaped by where they are. That changes. The friendships that lasted felt different from the start. They weren’t based on evaluation or what someone represented. There was no need to qualify yourself first. Just people talking to people.",
+      "Looking back, I’m glad I experienced it early. It gave me a clearer sense of what kind of interactions I value, and what kind of people I want to be around. Not defined by status, but just grounded in who they are.",
+    ],
+  },
+  {
+    id: "term-1a",
+    title: "TERM 1A",
+    year: "2025",
+    excerpt:
+      "At first, it was easy to gain an ego. Being around ambitious people, doing things on your own, feeling like you’re building momentum. But at the same time, it’s just as easy to get humbled. There’s such a wide range of talent and ability that it balances out quickly.",
+    paragraphs: [
+      "At first, it was easy to gain an ego. Being around ambitious people, doing things on your own, feeling like you’re building momentum. But at the same time, it’s just as easy to get humbled. There’s such a wide range of talent and ability that it balances out quickly.",
+      "I think I learned how to sit somewhere in between. Staying grounded in what I believe in, while still being confident in what I can do.",
+      "I also stopped judging people as much. Everyone is moving at a different pace, figuring out different things. Not everyone is at the same place, and that became more obvious the longer I was there.",
+      "At some point, I started to lose my sense of identity a bit. Being in a program I didn’t fully resonate with, while being surrounded by people in completely different paths, made me question where I fit. It messed with me more than I expected. But over time, I realized that identity doesn’t have to come from school. It’s easy to let it define you, but it doesn’t have to. You can build something outside of it, alongside it.",
+      "Being away from home also made me realize how much I value the people I grew up around. It’s easy to take those relationships for granted when they’re always there. But distance changes that. It takes effort to stay in touch, to call, to keep those connections strong. I started to appreciate my family more. Calling my parents every day became something I valued, not something I felt obligated to do. The same goes for friends back home. It’s harder to maintain those relationships, but it also makes you realize which ones matter.",
+      "Another thing I kept coming back to was time. There’s more of it than it feels like in the moment. It’s easy to get stuck thinking about what you could have done differently, or trying to plan everything out. But that just takes away from actually doing anything. You can overestimate what you can do in a year, and underestimate what you can do in five. What matters more is what you do day to day.",
+      "Ambition started to feel less fixed too. It’s not something constant. It changes depending on where you are, what you’re exposed to, and what you start to care about. I think I’m still figuring out what it means to me.",
+      "One thing that became clearer is that there are good people everywhere. And it doesn’t take long to recognize who you want to be around. First impressions aren’t everything, but they do tell you something. The people I’ve kept around are the ones that feel genuine. No pressure, no need to prove anything. Just normal conversations.",
+      "I don’t think I have everything figured out. But I feel less pressure to. There’s time to figure it out.",
+    ],
+  },
+  {
+    id: "start",
+    title: "START",
+    year: "2026",
+    excerpt:
+      "I just got back from San Francisco and this is something I don’t want to forget. Being there and meeting people around my age who were already building things made something really clear. It wasn’t that they had everything figured out or that their ideas were perfect. Most of it was still rough. But they had started.",
+    paragraphs: [
+      "I just got back from San Francisco and this is something I don’t want to forget. Being there and meeting people around my age who were already building things made something really clear. It wasn’t that they had everything figured out or that their ideas were perfect. Most of it was still rough. But they had started.",
+      "Before this, I spent a lot of time thinking. Planning things out, trying to make sure everything made sense before I began. I told myself I was being intentional, but most of the time it was just hesitation.",
+      "Seeing it up close made the gap obvious. It wasn’t intelligence or access or experience. It was a willingness to act without needing everything to be clear first. The people who were moving weren’t overanalyzing every step. They were just doing, and figuring it out as they went.",
+      "I don’t want to forget how obvious that felt. Overthinking doesn’t move anything forward. It just keeps you in the same place, convincing yourself you’re making progress when you’re not. Weeks can pass like that.",
+      "There isn’t a perfect moment where everything aligns. There’s just a point where you decide to begin. Even if it’s unclear. Even if it’s rough. Just start.",
+    ],
+  },
 ] as const;
 
 function HeaderWithDivider({
@@ -282,12 +353,12 @@ function SectionHeader({
     <HeaderWithDivider>
       <button
         type="button"
-        className="flex w-full items-center gap-3 text-left"
+        className="inline-flex w-fit self-start cursor-crosshair items-center gap-3 text-left"
         onClick={onClick}
         aria-label={`Show context ${secondary.toLowerCase()} section`}
       >
         <span
-          className="px-1.5 py-0.5 text-[12px] font-medium tracking-[0.05em]"
+          className="cursor-crosshair px-1.5 py-0.5 text-[12px] font-medium tracking-[0.05em]"
           style={
             isContextActive
               ? { backgroundColor: contextColor, color: "#000000" }
@@ -297,7 +368,7 @@ function SectionHeader({
           CONTEXT
         </span>
         <span
-          className={`text-[12px] font-medium tracking-[0.05em] ${
+          className={`cursor-crosshair text-[12px] font-medium tracking-[0.05em] ${
             isContextActive ? "text-black/80" : "text-muted"
           }`}
         >
@@ -334,6 +405,38 @@ function shuffleArray<T>(items: readonly T[]): T[] {
     [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
   }
   return shuffled;
+}
+
+function buildMixedContentOrderWithEntrySpacing(
+  workItemIds: string[],
+  entryItemIds: string[],
+) {
+  const shuffledWorkIds = shuffleArray(workItemIds);
+  const shuffledEntryIds = shuffleArray(entryItemIds);
+  const slotCount = shuffledWorkIds.length + 1;
+  const slotIndices = shuffleArray(
+    Array.from({ length: slotCount }, (_, index) => index),
+  );
+  const selectedSlots = slotIndices
+    .slice(0, Math.min(shuffledEntryIds.length, slotCount))
+    .sort((a, b) => a - b);
+
+  const entryBySlot = new Map<number, string>();
+  selectedSlots.forEach((slotIndex, entryIndex) => {
+    entryBySlot.set(slotIndex, shuffledEntryIds[entryIndex]);
+  });
+
+  const mixedOrder: string[] = [];
+  for (let slotIndex = 0; slotIndex < slotCount; slotIndex += 1) {
+    const entryId = entryBySlot.get(slotIndex);
+    if (entryId) {
+      mixedOrder.push(entryId);
+    }
+    if (slotIndex < shuffledWorkIds.length) {
+      mixedOrder.push(shuffledWorkIds[slotIndex]);
+    }
+  }
+  return mixedOrder;
 }
 
 function hslToRgb(hue: number, saturation: number, lightness: number) {
@@ -404,7 +507,7 @@ function NameHighlight({
     <button
       type="button"
       onClick={onActivate}
-      className="m-0 inline-flex appearance-none items-center gap-1 border-0 bg-transparent p-0 px-0.5 transition-colors duration-220 ease-out"
+      className="m-0 inline-flex appearance-none items-center gap-0 border-0 bg-transparent p-0 px-0.5 transition-colors duration-220 ease-out"
       style={
         isActive
           ? { backgroundColor: "#000000", color: "#FFFFFF", cursor: "crosshair" }
@@ -427,12 +530,19 @@ function NameHighlight({
         setStyles(defaultStyles);
       }}
     >
-      <span>{children}</span>
-      {isActive ? (
-        <span aria-hidden="true" className="text-[24px] leading-none text-white">
+      <span className="whitespace-nowrap">{children}</span>
+      <span
+        aria-hidden="true"
+        className={`inline-flex overflow-hidden leading-none text-white transition-[max-width,opacity,margin-left,transform] duration-240 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isActive
+            ? "ml-1 max-w-[24px] translate-x-0 opacity-100"
+            : "ml-0 max-w-0 -translate-x-1 opacity-0"
+        }`}
+      >
+        <span className="text-[24px] leading-none text-white">
           ×
         </span>
-      ) : null}
+      </span>
     </button>
   );
 }
@@ -440,10 +550,12 @@ function NameHighlight({
 function BringToTopIcon({
   active,
   disabled = false,
+  inactive = false,
   error = false,
 }: {
   active: boolean;
   disabled?: boolean;
+  inactive?: boolean;
   error?: boolean;
 }) {
   return (
@@ -462,9 +574,11 @@ function BringToTopIcon({
             ? "#DC2626"
             : disabled
               ? "rgba(0,0,0,0.2)"
-              : active
-                ? "white"
-                : "black"
+                : active
+                  ? "white"
+                : inactive
+                  ? "rgba(0,0,0,0.8)"
+                  : "rgba(0,0,0,0.8)"
         }
       />
     </svg>
@@ -474,10 +588,12 @@ function BringToTopIcon({
 function ShowHideIcon({
   active,
   disabled = false,
+  inactive = false,
   error = false,
 }: {
   active: boolean;
   disabled?: boolean;
+  inactive?: boolean;
   error?: boolean;
 }) {
   return (
@@ -498,9 +614,11 @@ function ShowHideIcon({
             ? "#DC2626"
             : disabled
               ? "rgba(0,0,0,0.2)"
-              : active
-                ? "white"
-                : "black"
+                : active
+                  ? "white"
+                : inactive
+                  ? "rgba(0,0,0,0.8)"
+                  : "rgba(0,0,0,0.8)"
         }
       />
     </svg>
@@ -509,16 +627,20 @@ function ShowHideIcon({
 
 function TruncateIcon({
   disabled = false,
+  inactive = false,
   error = false,
 }: {
   disabled?: boolean;
+  inactive?: boolean;
   error?: boolean;
 }) {
   const fill = error
     ? "#DC2626"
     : disabled
       ? "rgba(0,0,0,0.2)"
-      : "black";
+      : inactive
+        ? "rgba(0,0,0,0.8)"
+        : "rgba(0,0,0,0.8)";
 
   return (
     <svg
@@ -531,6 +653,25 @@ function TruncateIcon({
     >
       <path d="M8 14H16" stroke={fill} strokeWidth="2" />
       <path d="M8 10H16" stroke={fill} strokeWidth="2" />
+    </svg>
+  );
+}
+
+function TrailModeIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M9 16H7M13 16H11M17 16H15M9 12H7M13 12H11M17 12H15M7 8H9H11H13H15H17M7 10H9H11M7 14H9H11M13 10H15M15 14H13"
+        stroke="rgba(0,0,0,0.8)"
+        strokeWidth="2"
+      />
     </svg>
   );
 }
@@ -553,12 +694,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [isSelectorBouncing, setIsSelectorBouncing] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [trailSquares, setTrailSquares] = useState<TrailSquare[]>([]);
+  const [isTrailBoosted, setIsTrailBoosted] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [entryPhase, setEntryPhase] = useState<EntryPhase>("closed");
-  const [entryDividerRect, setEntryDividerRect] = useState<DividerRect | null>(
-    null,
-  );
-  const [entryDividerTargetTop, setEntryDividerTargetTop] = useState(120);
+  const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null);
   const [cursorBadgeMode, setCursorBadgeMode] = useState<CursorBadgeMode>(null);
   const [cursorBadgePosition, setCursorBadgePosition] = useState({ x: 0, y: 0 });
   const [hoveredControl, setHoveredControl] = useState<HoveredControl>(null);
@@ -569,6 +707,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     useState<PanelTabId | null>(null);
   const [isSelectorGroupHovered, setIsSelectorGroupHovered] = useState(false);
   const [hoveredLocationToggle, setHoveredLocationToggle] = useState(false);
+  const [hoveredTrailToggle, setHoveredTrailToggle] = useState(false);
+  const [hoveredIntroToggle, setHoveredIntroToggle] = useState(false);
   const [hoveredProfileImage, setHoveredProfileImage] = useState(false);
   const [profileTooltipFlip, setProfileTooltipFlip] = useState(false);
   const [isEntriesHeaderHovered, setIsEntriesHeaderHovered] = useState(false);
@@ -581,12 +721,21 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [invalidControlFlash, setInvalidControlFlash] = useState<HoveredControl>(
     null,
   );
+  const [invalidSelectorFlash, setInvalidSelectorFlash] = useState<PanelTabId | null>(
+    null,
+  );
+  const [invalidExternalLinkFlash, setInvalidExternalLinkFlash] = useState<
+    string | null
+  >(null);
   const [isTruncateMode, setIsTruncateMode] = useState(false);
   const [expandedInTruncate, setExpandedInTruncate] = useState<Record<string, boolean>>({
     contextIdentity: false,
+    contextEducation: false,
+    contextExperience: false,
     contextExternal: false,
+    contextProfile: false,
     ...Object.fromEntries(workProjects.map((project) => [`work:${project.id}`, false])),
-    entries: false,
+    ...Object.fromEntries(entriesData.map((entry) => [`entry:${entry.id}`, false])),
   });
   const [isProfileWindowOpen, setIsProfileWindowOpen] = useState(false);
   const [isProfileWindowSelected, setIsProfileWindowSelected] = useState(false);
@@ -614,8 +763,11 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       ),
     );
   const [mixedWorkEntriesOrder, setMixedWorkEntriesOrder] = useState(() => [
-    ...workProjects.map((project) => `work:${project.id}`),
-    "entries",
+    ...workProjects
+      .filter((project) => project.id !== fixedBottomWorkProjectId)
+      .map((project) => `work:${project.id}`),
+    ...entriesData.map((entry) => `entry:${entry.id}`),
+    ...mixedContextSectionIds,
   ]);
   const [workImageOrderByProject, setWorkImageOrderByProject] = useState<
     Record<string, string[]>
@@ -628,11 +780,13 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const lastTrailTimeRef = useRef(0);
   const lastTrailPointRef = useRef({ x: 0, y: 0 });
   const trailIdRef = useRef(0);
+  const trailHueRef = useRef(0);
   const selectorBounceTimeoutRef = useRef<number | null>(null);
   const displayClearTimeoutRef = useRef<number | null>(null);
   const previewTimeoutRef = useRef<number | null>(null);
-  const entryPhaseTimeoutRef = useRef<number | null>(null);
   const invalidControlFlashTimeoutRef = useRef<number | null>(null);
+  const invalidSelectorFlashTimeoutRef = useRef<number | null>(null);
+  const invalidExternalLinkFlashTimeoutRef = useRef<number | null>(null);
   const profileWindowRef = useRef<HTMLDivElement | null>(null);
   const profileWindowDragOffsetRef = useRef<Point>({ x: 0, y: 0 });
   const profileWindowResizeStartRef = useRef<{
@@ -644,29 +798,17 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     top: number;
     handle: ResizeHandle;
   } | null>(null);
-  const homeEntryDividerRef = useRef<HTMLDivElement | null>(null);
+  const profileGestureFrameRef = useRef<number | null>(null);
+  const profilePendingPositionRef = useRef<Point | null>(null);
+  const profilePendingResizeRef = useRef<{
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+  } | null>(null);
+  const entryHeaderRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const homeIdentityDividerRef = useRef<HTMLDivElement | null>(null);
-  const entryOverlayHeaderRef = useRef<HTMLDivElement | null>(null);
-  const entryOverlayScrollRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const captureDividerBaseline = () => {
-      if (!homeIdentityDividerRef.current) {
-        return;
-      }
-      if (window.scrollY > 8) {
-        return;
-      }
-      const identityRect = homeIdentityDividerRef.current.getBoundingClientRect();
-      setEntryDividerTargetTop(Math.max(12, identityRect.top));
-    };
-
-    captureDividerBaseline();
-    window.addEventListener("resize", captureDividerBaseline);
-    return () => {
-      window.removeEventListener("resize", captureDividerBaseline);
-    };
-  }, []);
+  const homeSectionsStartRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -695,6 +837,26 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   }, []);
 
   useEffect(() => {
+    const resetEntryOverlayState = () => {
+      setExpandedEntryId(null);
+      setCursorBadgeMode(null);
+      setIsEntriesHeaderHovered(false);
+    };
+
+    const handleHistoryOrPageRestore = () => {
+      window.setTimeout(resetEntryOverlayState, 0);
+    };
+
+    window.addEventListener("popstate", handleHistoryOrPageRestore);
+    window.addEventListener("pageshow", handleHistoryOrPageRestore);
+
+    return () => {
+      window.removeEventListener("popstate", handleHistoryOrPageRestore);
+      window.removeEventListener("pageshow", handleHistoryOrPageRestore);
+    };
+  }, []);
+
+  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       if (!window.matchMedia("(max-width: 767px)").matches) {
         return;
@@ -719,7 +881,17 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setMixedWorkEntriesOrder(
-        shuffleArray([...workProjects.map((project) => `work:${project.id}`), "entries"]),
+        (() => {
+          const mixed = buildMixedContentOrderWithEntrySpacing(
+          workProjects
+            .filter((project) => project.id !== fixedBottomWorkProjectId)
+            .map((project) => `work:${project.id}`),
+          entriesData.map((entry) => `entry:${entry.id}`),
+          );
+          const insertAt = Math.floor(Math.random() * (mixed.length + 1));
+          mixed.splice(insertAt, 0, ...mixedContextSectionIds);
+          return mixed;
+        })(),
       );
       setWorkImageOrderByProject(
         Object.fromEntries(
@@ -740,16 +912,30 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     const spawnTrailSquare = (
       clientX: number,
       clientY: number,
-      options?: { color?: string; size?: number; lockedColor?: boolean },
+      options?: {
+        color?: string;
+        size?: number;
+        lockedColor?: boolean;
+        lifetimeMs?: number;
+      },
     ) => {
       trailIdRef.current += 1;
       const id = trailIdRef.current;
-      const color =
-        options?.color ??
-        cursorTrailPalette[
-          Math.floor(Math.random() * cursorTrailPalette.length)
-        ];
-      const size = options?.size ?? Math.floor(Math.random() * 5) + 4;
+      if (isTrailBoosted) {
+        trailHueRef.current = (trailHueRef.current + 18) % 360;
+      }
+      const color = options?.color
+        ? options.color
+        : isTrailBoosted
+          ? `hsl(${trailHueRef.current} 100% 58%)`
+          : cursorTrailPalette[
+              Math.floor(Math.random() * cursorTrailPalette.length)
+            ];
+      const size = options?.size
+        ? options.size
+        : isTrailBoosted
+          ? Math.floor(Math.random() * 7) + 5
+          : Math.floor(Math.random() * 5) + 4;
 
       setTrailSquares((prev) => {
         const next = [
@@ -763,24 +949,37 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             lockedColor: options?.lockedColor ?? false,
           },
         ];
-        return next.length > 14 ? next.slice(next.length - 14) : next;
+        const maxSquares = isTrailBoosted ? 56 : 11;
+        return next.length > maxSquares ? next.slice(next.length - maxSquares) : next;
       });
 
       window.setTimeout(() => {
         setTrailSquares((prev) => prev.filter((square) => square.id !== id));
-      }, 700);
+      }, options?.lifetimeMs ?? (isTrailBoosted ? 1400 : 650));
     };
 
     const handlePointerMove = (event: PointerEvent) => {
       const now = performance.now();
       const dx = event.clientX - lastTrailPointRef.current.x;
       const dy = event.clientY - lastTrailPointRef.current.y;
-      const movedEnough = Math.hypot(dx, dy) > 16;
-      const cooledDown = now - lastTrailTimeRef.current > 72;
-      const shouldSpawn = Math.random() < 0.52;
+      const movedEnough = Math.hypot(dx, dy) > (isTrailBoosted ? 7 : 20);
+      const cooledDown = now - lastTrailTimeRef.current > (isTrailBoosted ? 22 : 92);
+      const shouldSpawn = Math.random() < (isTrailBoosted ? 0.92 : 0.34);
 
       if (movedEnough && cooledDown && shouldSpawn) {
         spawnTrailSquare(event.clientX, event.clientY);
+        if (Math.random() < (isTrailBoosted ? 0.72 : 0.08)) {
+          spawnTrailSquare(
+            event.clientX + (Math.random() < 0.5 ? -8 : 8),
+            event.clientY + (Math.random() < 0.5 ? -8 : 8),
+          );
+        }
+        if (isTrailBoosted && Math.random() < 0.46) {
+          spawnTrailSquare(
+            event.clientX + (Math.random() < 0.5 ? -12 : 12),
+            event.clientY + (Math.random() < 0.5 ? -12 : 12),
+          );
+        }
         lastTrailTimeRef.current = now;
         lastTrailPointRef.current.x = event.clientX;
         lastTrailPointRef.current.y = event.clientY;
@@ -788,37 +987,60 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      if (isTrailBoosted) {
+        const spacing = 9;
+        for (let row = -1; row <= 1; row += 1) {
+          for (let column = -1; column <= 1; column += 1) {
+            spawnTrailSquare(
+              event.clientX + column * spacing,
+              event.clientY + row * spacing,
+              {
+                color: `hsl(${Math.floor(Math.random() * 360)} 100% 58%)`,
+                size: Math.floor(Math.random() * 7) + 4,
+                lockedColor: true,
+                lifetimeMs: 5200,
+              },
+            );
+          }
+        }
+        return;
+      }
+
       spawnTrailSquare(event.clientX, event.clientY, {
         color: "#000000",
-        size: 8,
+        size: isTrailBoosted ? 9 : 8,
         lockedColor: true,
       });
     };
 
-    const recolorInterval = window.setInterval(() => {
-      setTrailSquares((prev) =>
-        prev.map((square) =>
-          square.lockedColor
-            ? square
-            : {
-                ...square,
-                color:
-                  cursorTrailPalette[
-                    Math.floor(Math.random() * cursorTrailPalette.length)
-                  ],
-              },
-        ),
-      );
-    }, 500);
+    const recolorInterval = !isTrailBoosted
+      ? window.setInterval(() => {
+          setTrailSquares((prev) =>
+            prev.map((square) =>
+              square.lockedColor
+                ? square
+                : {
+                    ...square,
+                    color:
+                      cursorTrailPalette[
+                        Math.floor(Math.random() * cursorTrailPalette.length)
+                      ],
+                  },
+            ),
+          );
+        }, 1000)
+      : null;
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("pointerdown", handlePointerDown, { passive: true });
     return () => {
-      window.clearInterval(recolorInterval);
+      if (recolorInterval) {
+        window.clearInterval(recolorInterval);
+      }
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, []);
+  }, [isTrailBoosted]);
 
   useEffect(() => {
     if (!isProfileWindowOpen) {
@@ -922,11 +1144,12 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       x: event.clientX - profileWindowPosition.x,
       y: event.clientY - profileWindowPosition.y,
     };
+    event.currentTarget.setPointerCapture(event.pointerId);
 
     const handleMove = (moveEvent: PointerEvent) => {
       const maxX = Math.max(16, window.innerWidth - profileWindowSize.width - 16);
       const maxY = Math.max(16, window.innerHeight - profileWindowSize.height - 16);
-      setProfileWindowPosition({
+      profilePendingPositionRef.current = {
         x: Math.min(
           maxX,
           Math.max(16, moveEvent.clientX - profileWindowDragOffsetRef.current.x),
@@ -935,11 +1158,29 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           maxY,
           Math.max(16, moveEvent.clientY - profileWindowDragOffsetRef.current.y),
         ),
+      };
+
+      if (profileGestureFrameRef.current !== null) {
+        return;
+      }
+      profileGestureFrameRef.current = window.requestAnimationFrame(() => {
+        profileGestureFrameRef.current = null;
+        if (profilePendingPositionRef.current) {
+          setProfileWindowPosition(profilePendingPositionRef.current);
+        }
       });
     };
 
     const handleUp = () => {
       setIsProfileWindowDragging(false);
+      if (profileGestureFrameRef.current !== null) {
+        window.cancelAnimationFrame(profileGestureFrameRef.current);
+        profileGestureFrameRef.current = null;
+      }
+      if (profilePendingPositionRef.current) {
+        setProfileWindowPosition(profilePendingPositionRef.current);
+        profilePendingPositionRef.current = null;
+      }
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerup", handleUp);
     };
@@ -961,6 +1202,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     setIsProfileWindowSelected(true);
     setIsProfileWindowResizing(true);
     setActiveResizeHandle(handle);
+    event.currentTarget.setPointerCapture(event.pointerId);
 
     profileWindowResizeStartRef.current = {
       x: event.clientX,
@@ -1029,13 +1271,29 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       nextLeft = clamp(nextLeft, margin, window.innerWidth - nextWidth - margin);
       nextTop = clamp(nextTop, margin, window.innerHeight - nextHeight - margin);
 
-      setProfileWindowSize({
+      profilePendingResizeRef.current = {
         width: Math.round(nextWidth),
         height: Math.round(nextHeight),
-      });
-      setProfileWindowPosition({
         x: Math.round(nextLeft),
         y: Math.round(nextTop),
+      };
+
+      if (profileGestureFrameRef.current !== null) {
+        return;
+      }
+      profileGestureFrameRef.current = window.requestAnimationFrame(() => {
+        profileGestureFrameRef.current = null;
+        if (!profilePendingResizeRef.current) {
+          return;
+        }
+        setProfileWindowSize({
+          width: profilePendingResizeRef.current.width,
+          height: profilePendingResizeRef.current.height,
+        });
+        setProfileWindowPosition({
+          x: profilePendingResizeRef.current.x,
+          y: profilePendingResizeRef.current.y,
+        });
       });
     };
 
@@ -1043,6 +1301,21 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       setIsProfileWindowResizing(false);
       setActiveResizeHandle(null);
       profileWindowResizeStartRef.current = null;
+      if (profileGestureFrameRef.current !== null) {
+        window.cancelAnimationFrame(profileGestureFrameRef.current);
+        profileGestureFrameRef.current = null;
+      }
+      if (profilePendingResizeRef.current) {
+        setProfileWindowSize({
+          width: profilePendingResizeRef.current.width,
+          height: profilePendingResizeRef.current.height,
+        });
+        setProfileWindowPosition({
+          x: profilePendingResizeRef.current.x,
+          y: profilePendingResizeRef.current.y,
+        });
+        profilePendingResizeRef.current = null;
+      }
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerup", handleUp);
     };
@@ -1078,9 +1351,12 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       setIsTruncateMode(false);
       setExpandedInTruncate({
         contextIdentity: false,
+        contextEducation: false,
+        contextExperience: false,
         contextExternal: false,
+        contextProfile: false,
         ...Object.fromEntries(workProjects.map((project) => [`work:${project.id}`, false])),
-        entries: false,
+        ...Object.fromEntries(entriesData.map((entry) => [`entry:${entry.id}`, false])),
       });
       displayClearTimeoutRef.current = window.setTimeout(
         () => setDisplayPanelTab(null),
@@ -1136,6 +1412,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
   useEffect(() => {
     return () => {
+      if (profileGestureFrameRef.current !== null) {
+        window.cancelAnimationFrame(profileGestureFrameRef.current);
+      }
       if (selectorBounceTimeoutRef.current !== null) {
         window.clearTimeout(selectorBounceTimeoutRef.current);
       }
@@ -1145,63 +1424,29 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       if (previewTimeoutRef.current !== null) {
         window.clearTimeout(previewTimeoutRef.current);
       }
-      if (entryPhaseTimeoutRef.current !== null) {
-        window.clearTimeout(entryPhaseTimeoutRef.current);
-      }
       if (invalidControlFlashTimeoutRef.current !== null) {
         window.clearTimeout(invalidControlFlashTimeoutRef.current);
+      }
+      if (invalidSelectorFlashTimeoutRef.current !== null) {
+        window.clearTimeout(invalidSelectorFlashTimeoutRef.current);
+      }
+      if (invalidExternalLinkFlashTimeoutRef.current !== null) {
+        window.clearTimeout(invalidExternalLinkFlashTimeoutRef.current);
       }
     };
   }, []);
 
-  const openEntry = () => {
-    if (entryPhase !== "closed") {
-      return;
-    }
-    if (entryOverlayScrollRef.current) {
-      entryOverlayScrollRef.current.scrollTo({ top: 0, behavior: "auto" });
-    }
+  const openEntry = (entryId: string) => {
+    setExpandedEntryId(entryId);
     setCursorBadgeMode(null);
-    if (homeEntryDividerRef.current) {
-      const rect = homeEntryDividerRef.current.getBoundingClientRect();
-      setEntryDividerRect({
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-      });
-    }
-    if (entryOverlayHeaderRef.current) {
-      const overlayHeaderRect = entryOverlayHeaderRef.current.getBoundingClientRect();
-      setEntryDividerTargetTop(Math.max(12, overlayHeaderRect.top));
-    }
-    setEntryPhase("main-fading-out");
-    if (entryPhaseTimeoutRef.current !== null) {
-      window.clearTimeout(entryPhaseTimeoutRef.current);
-    }
-    entryPhaseTimeoutRef.current = window.setTimeout(() => {
-      setEntryPhase("entry-header-sliding");
-      entryPhaseTimeoutRef.current = window.setTimeout(() => {
-        setEntryPhase("entry-visible");
-      }, 980);
-    }, 360);
   };
 
   const closeEntry = () => {
-    if (entryPhase !== "entry-visible") {
+    if (!expandedEntryId) {
       return;
     }
+    setExpandedEntryId(null);
     setCursorBadgeMode(null);
-    setEntryPhase("entry-header-return-prep");
-    if (entryPhaseTimeoutRef.current !== null) {
-      window.clearTimeout(entryPhaseTimeoutRef.current);
-    }
-    entryPhaseTimeoutRef.current = window.setTimeout(() => {
-      setEntryPhase("entry-header-returning");
-      entryPhaseTimeoutRef.current = window.setTimeout(() => {
-        setEntryPhase("closed");
-        setEntryDividerRect(null);
-      }, 980);
-    }, 320);
   };
 
   const reveal = (delayMs: number) => ({
@@ -1252,6 +1497,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
   const canUseTruncateControl = activePanelTab !== null && showOnlySelected;
   const truncateModeActive = isTruncateMode && canUseTruncateControl;
+  const isEntryControlLockActive = false;
 
   const cursorControlLabel =
     !hoveredControl || !activePanelTab
@@ -1280,10 +1526,16 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       ? "DEL/BACKSPACE TO CLOSE"
       : "MAR 29 2026 8:04PM"
     : null;
+  const cursorTrailModeLabel = hoveredTrailToggle ? "SWITCH CURSOR MODE" : null;
+  const cursorIntroLabel = hoveredIntroToggle ? "SITE INFO" : null;
   const activeCursorBadgeText = cursorControlLabel
     ? cursorControlLabel
     : cursorLocationLabel
       ? cursorLocationLabel
+      : cursorTrailModeLabel
+        ? cursorTrailModeLabel
+        : cursorIntroLabel
+          ? cursorIntroLabel
       : cursorProfileImageLabel
         ? cursorProfileImageLabel
         : cursorBadgeMode === "read-more"
@@ -1305,28 +1557,34 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     cursorBadgePosition.y + badgeOffset + estimatedBadgeHeight > viewportHeight - 8;
 
   const getSectionOrder = (group: PanelTabId) => {
-    if (group === "context") {
-      return 0;
+    if (sectionPriority === "context") {
+      return group === "context" ? 0 : 1;
     }
-    if (sectionPriority === "work") {
-      return group === "work" ? 1 : 2;
+    if (sectionPriority === "work" || sectionPriority === "entries") {
+      return group === "context" ? 2 : 1;
     }
-    if (sectionPriority === "entries") {
-      return group === "entries" ? 1 : 2;
-    }
-    return group === "work" ? 1 : 2;
+    return group === "context" ? 0 : 1;
   };
   const orderedMixedWorkEntries = (() => {
+    if (sectionPriority === "context") {
+      return [
+        ...mixedWorkEntriesOrder.filter((item) => item.startsWith("context:")),
+        ...mixedWorkEntriesOrder.filter((item) => item.startsWith("work:")),
+        ...mixedWorkEntriesOrder.filter((item) => item.startsWith("entry:")),
+      ];
+    }
     if (sectionPriority === "work") {
       return [
         ...mixedWorkEntriesOrder.filter((item) => item.startsWith("work:")),
-        ...mixedWorkEntriesOrder.filter((item) => item === "entries"),
+        ...mixedWorkEntriesOrder.filter((item) => item.startsWith("entry:")),
+        ...mixedWorkEntriesOrder.filter((item) => item.startsWith("context:")),
       ];
     }
     if (sectionPriority === "entries") {
       return [
-        ...mixedWorkEntriesOrder.filter((item) => item === "entries"),
+        ...mixedWorkEntriesOrder.filter((item) => item.startsWith("entry:")),
         ...mixedWorkEntriesOrder.filter((item) => item.startsWith("work:")),
+        ...mixedWorkEntriesOrder.filter((item) => item.startsWith("context:")),
       ];
     }
     return mixedWorkEntriesOrder;
@@ -1339,34 +1597,29 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       return item.startsWith("work:");
     }
     if (activePanelTab === "entries") {
-      return item === "entries";
+      return item.startsWith("entry:");
+    }
+    if (activePanelTab === "context") {
+      return item.startsWith("context:");
     }
     return false;
   });
+  const shouldShowFixedBottomWork =
+    !showOnlySelected || activePanelTab === null || activePanelTab === "work";
+  const visibleOrderedContentItems = shouldShowFixedBottomWork
+    ? [...visibleMixedWorkEntries, `work:${fixedBottomWorkProjectId}`]
+    : visibleMixedWorkEntries;
   const workProjectById = Object.fromEntries(
     workProjects.map((project) => [project.id, project]),
   );
-
-  const isEntryOverlayVisible =
-    entryPhase === "entry-visible" ||
-    entryPhase === "entry-header-return-prep" ||
-    entryPhase === "entry-header-returning" ||
-    entryPhase === "entry-fading-out";
-  const isEntryReturning =
-    entryPhase === "entry-header-return-prep" ||
-    entryPhase === "entry-header-returning";
-  const isEntryDividerFloating =
-    entryPhase === "main-fading-out" ||
-    entryPhase === "entry-header-sliding" ||
-    entryPhase === "entry-visible" ||
-    entryPhase === "entry-header-return-prep" ||
-    entryPhase === "entry-header-returning" ||
-    entryPhase === "entry-fading-out";
+  const entryById = Object.fromEntries(entriesData.map((entry) => [entry.id, entry]));
 
   return (
-    <main className="relative min-h-screen bg-background pb-20 pt-4">
+    <main className="relative flex min-h-screen flex-col bg-background pb-6 pt-4">
       {cursorControlLabel ||
       cursorLocationLabel ||
+      cursorTrailModeLabel ||
+      cursorIntroLabel ||
       cursorProfileImageLabel ||
       cursorBadgeMode ? (
         <div
@@ -1385,6 +1638,14 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
               {cursorLocationLabel}
             </span>
+          ) : cursorTrailModeLabel ? (
+            <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
+              {cursorTrailModeLabel}
+            </span>
+          ) : cursorIntroLabel ? (
+            <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
+              {cursorIntroLabel}
+            </span>
           ) : cursorProfileImageLabel ? (
             <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
               {cursorProfileImageLabel}
@@ -1394,10 +1655,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               READ MORE
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
-              <span aria-hidden="true" className="text-[11px] leading-none">
-                ×
-              </span>
+            <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
               CLOSE ENTRY
             </span>
           )}
@@ -1425,16 +1683,21 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               : isProfileWindowDragging
                 ? "cursor-grabbing"
                 : "cursor-grab"
-          } profile-window-pop`}
+          }`}
           style={{
             left: profileWindowPosition.x,
             top: profileWindowPosition.y,
             width: profileWindowSize.width,
             height: profileWindowSize.height,
+            touchAction: "none",
+            willChange: "left, top, width, height",
           }}
           onPointerDown={handleProfileWindowPointerDown}
           onClick={() => setIsProfileWindowSelected(true)}
         >
+          <span className="pointer-events-none absolute -top-6 left-0 right-0 overflow-hidden text-ellipsis whitespace-nowrap text-[14px] font-medium leading-none text-[#00A1FF]">
+            RAGHAV ON BAKER BEACH, SAN FRANCISCO
+          </span>
           <img
             src="/profile.png"
             alt="Raghav portrait"
@@ -1454,42 +1717,42 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             <>
               <div
                 data-drag-ignore="true"
-                className="absolute -left-1.5 -top-1.5 h-3 w-3 cursor-nwse-resize border-2 border-[#00A1FF] bg-white"
+                className="absolute -left-1 -top-1 h-4 w-4 cursor-nwse-resize border-2 border-[#00A1FF] bg-white md:h-3 md:w-3"
                 onPointerDown={(event) => handleProfileResizeStart("nw", event)}
               />
               <div
                 data-drag-ignore="true"
-                className="absolute -right-1.5 -top-1.5 h-3 w-3 cursor-nesw-resize border-2 border-[#00A1FF] bg-white"
+                className="absolute -right-1 -top-1 h-4 w-4 cursor-nesw-resize border-2 border-[#00A1FF] bg-white md:h-3 md:w-3"
                 onPointerDown={(event) => handleProfileResizeStart("ne", event)}
               />
               <div
                 data-drag-ignore="true"
-                className="absolute -right-1.5 -bottom-1.5 h-3 w-3 cursor-nwse-resize border-2 border-[#00A1FF] bg-white"
+                className="absolute -right-1 -bottom-1 h-4 w-4 cursor-nwse-resize border-2 border-[#00A1FF] bg-white md:h-3 md:w-3"
                 onPointerDown={(event) => handleProfileResizeStart("se", event)}
               />
               <div
                 data-drag-ignore="true"
-                className="absolute -bottom-1.5 -left-1.5 h-3 w-3 cursor-nesw-resize border-2 border-[#00A1FF] bg-white"
+                className="absolute -bottom-1 -left-1 h-4 w-4 cursor-nesw-resize border-2 border-[#00A1FF] bg-white md:h-3 md:w-3"
                 onPointerDown={(event) => handleProfileResizeStart("sw", event)}
               />
               <div
                 data-drag-ignore="true"
-                className="absolute left-3 right-3 -top-1 h-2 cursor-ns-resize"
+                className="absolute left-3 right-3 -top-1 h-3 cursor-ns-resize md:h-2"
                 onPointerDown={(event) => handleProfileResizeStart("n", event)}
               />
               <div
                 data-drag-ignore="true"
-                className="absolute left-3 right-3 -bottom-1 h-2 cursor-ns-resize"
+                className="absolute left-3 right-3 -bottom-1 h-3 cursor-ns-resize md:h-2"
                 onPointerDown={(event) => handleProfileResizeStart("s", event)}
               />
               <div
                 data-drag-ignore="true"
-                className="absolute -left-1 top-3 bottom-3 w-2 cursor-ew-resize"
+                className="absolute -left-1 top-3 bottom-3 w-3 cursor-ew-resize md:w-2"
                 onPointerDown={(event) => handleProfileResizeStart("w", event)}
               />
               <div
                 data-drag-ignore="true"
-                className="absolute -right-1 top-3 bottom-3 w-2 cursor-ew-resize"
+                className="absolute -right-1 top-3 bottom-3 w-3 cursor-ew-resize md:w-2"
                 onPointerDown={(event) => handleProfileResizeStart("e", event)}
               />
             </>
@@ -1497,121 +1760,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         </div>
       ) : null}
 
-      {entryDividerRect && isEntryDividerFloating ? (
-        <div
-          className="pointer-events-none fixed z-[86] transition-transform duration-[980ms] ease-[cubic-bezier(0.45,0,0.55,1)]"
-          style={{
-            top: entryDividerRect.top,
-            left: entryDividerRect.left,
-            width: entryDividerRect.width,
-            transform:
-              entryPhase === "entry-header-sliding" ||
-              entryPhase === "entry-visible" ||
-              entryPhase === "entry-header-return-prep"
-                ? `translateY(${entryDividerTargetTop - entryDividerRect.top}px)`
-                : "translateY(0px)",
-            opacity:
-              entryPhase === "entry-visible" || entryPhase === "entry-fading-out"
-                ? 0
-                : 1,
-          }}
-        >
-          <HeaderWithDivider dividerClassName={isEntryReturning ? "" : "bg-[#FFE500]"}>
-            <div className="flex items-center justify-between text-[12px] font-medium tracking-[0.05em] text-black/40">
-              <div className="flex items-center gap-2">
-                <span
-                  className="px-1.5 py-0.5"
-                  style={{
-                    backgroundColor: isEntryReturning ? "rgba(0,0,0,0.05)" : "#FFE500",
-                    color: isEntryReturning ? "rgba(29, 29, 27, 0.42)" : "#000000",
-                  }}
-                >
-                  ENTRIES
-                </span>
-                <span className="font-medium">{entryTitle}</span>
-              </div>
-              <span className="font-medium">{entryYear}</span>
-            </div>
-          </HeaderWithDivider>
-        </div>
-      ) : null}
-
-      <div
-        ref={entryOverlayScrollRef}
-        className={`fixed inset-0 z-[85] overflow-y-auto transition-opacity duration-360 ease-out ${
-          isEntryOverlayVisible
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0"
-        }`}
-        style={{ cursor: entryPhase === "entry-visible" ? "sw-resize" : "auto" }}
-        onClick={closeEntry}
-        onMouseEnter={(event) => {
-          if (entryPhase === "entry-visible") {
-            setCursorBadgeMode("close-entry");
-            updateCursorBadgePosition(event);
-          }
-        }}
-        onMouseMove={(event) => {
-          if (entryPhase === "entry-visible") {
-            updateCursorBadgePosition(event);
-          }
-        }}
-        onMouseLeave={() => {
-          setCursorBadgeMode(null);
-        }}
-      >
-        <div className="relative min-h-screen">
-          <div className="container-frame w-full pb-16 pt-8 md:pt-8">
-            <div
-              ref={entryOverlayHeaderRef}
-              className={`${
-                entryPhase === "entry-visible"
-                  ? "opacity-100"
-                  : "opacity-0"
-              }`}
-            >
-              <HeaderWithDivider dividerClassName={isEntryReturning ? "" : "bg-[#FFE500]"}>
-                <div className="flex items-center justify-between text-[12px] font-medium tracking-[0.05em] text-black/40">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="px-1.5 py-0.5"
-                      style={{
-                        backgroundColor: isEntryReturning ? "rgba(0,0,0,0.05)" : "#FFE500",
-                        color: isEntryReturning ? "rgba(29, 29, 27, 0.42)" : "#000000",
-                      }}
-                    >
-                      ENTRIES
-                    </span>
-                    <span className="font-medium">{entryTitle}</span>
-                  </div>
-                  <span className="font-medium">{entryYear}</span>
-                </div>
-              </HeaderWithDivider>
-            </div>
-            <div
-              className={`mt-2 grid gap-6 md:grid-cols-2 transition-opacity duration-260 ease-out ${
-                entryPhase === "entry-visible" ? "opacity-100 delay-140" : "opacity-0"
-              }`}
-            >
-              <div className="text-[16px] leading-[1.5] text-black/80 text-justify">
-                {entryContentParagraphs.map((paragraph) => (
-                  <p key={paragraph} className="mb-4" style={{ fontFeatureSettings: "'salt' 1" }}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-              <div className="flex items-start justify-start">
-                <span className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-transparent select-none">
-                  <span aria-hidden="true" className="text-[11px] leading-none">
-                    ×
-                  </span>
-                  CLOSE ENTRY
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       {previewImage ? (
         <div className="pointer-events-none fixed inset-0 z-[70] flex items-center justify-center">
           <div className="h-[75vh] w-[75vw] overflow-hidden">
@@ -1640,11 +1788,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         ))}
       </div>
 
-      <div
-        className={`container-frame relative z-10 transition-opacity duration-560 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          entryPhase === "closed" ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-      >
+      <div className="container-frame relative z-10 flex flex-1 flex-col">
         <section className="grid gap-6 min-[940px]:grid-cols-3 xl:gap-20">
           <div
             className={`w-full max-w-[480px] min-[940px]:order-3 ${reveal(0).className}`}
@@ -1679,11 +1823,41 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   </span>
                 </span>
               </button>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  className="flex h-6 w-6 items-center justify-center border border-black/50 bg-[#F7F7F7] text-[16px] leading-none text-black transition-all duration-150"
+                  className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
+                    isTrailBoosted
+                      ? "trail-mode-button-active border-black/80"
+                      : "border-black/20 bg-[#F7F7F7]"
+                  }`}
+                  onClick={() => {
+                    setIsTrailBoosted((prev) => !prev);
+                  }}
+                  onMouseEnter={(event) => {
+                    setHoveredTrailToggle(true);
+                    updateCursorBadgePosition(event);
+                  }}
+                  onMouseMove={updateCursorBadgePosition}
+                  onMouseLeave={() => {
+                    setHoveredTrailToggle(false);
+                  }}
+                  aria-label="Toggle boosted cursor trail mode"
+                >
+                  <TrailModeIcon />
+                </button>
+                <button
+                  type="button"
+                  className="flex h-6 w-6 items-center justify-center border border-black/20 bg-[#F7F7F7] text-[16px] leading-none text-black transition-all duration-150"
                   onClick={() => setIsIntroOpen((prev) => !prev)}
+                  onMouseEnter={(event) => {
+                    setHoveredIntroToggle(true);
+                    updateCursorBadgePosition(event);
+                  }}
+                  onMouseMove={updateCursorBadgePosition}
+                  onMouseLeave={() => {
+                    setHoveredIntroToggle(false);
+                  }}
                   aria-label={isIntroOpen ? "Close intro note" : "Open intro note"}
                 >
                   <span
@@ -1692,8 +1866,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                       isIntroOpen ? "rotate-45" : "rotate-0"
                     }`}
                   >
-                    <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-black" />
-                    <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-black" />
+                    <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-black/80" />
+                    <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-black/80" />
                   </span>
                 </button>
               </div>
@@ -1803,10 +1977,25 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                     <button
                       key={tab.id}
                       type="button"
-                      onClick={() => togglePanelTab(tab.id)}
+                      onClick={() => {
+                        if (isEntryControlLockActive) {
+                          setInvalidSelectorFlash(tab.id);
+                          if (invalidSelectorFlashTimeoutRef.current !== null) {
+                            window.clearTimeout(invalidSelectorFlashTimeoutRef.current);
+                          }
+                          invalidSelectorFlashTimeoutRef.current = window.setTimeout(
+                            () => setInvalidSelectorFlash(null),
+                            420,
+                          );
+                          return;
+                        }
+                        togglePanelTab(tab.id);
+                      }}
                       className={`inline-flex h-6 items-center justify-center gap-1 border-[0.5px] border-black/50 bg-[#F7F7F7] px-2 py-[2px] text-[clamp(11px,0.76vw,12px)] font-medium leading-none transition-[transform,box-shadow,background-color,border-color,color] duration-350 ease-[cubic-bezier(0.22,1.35,0.32,1)] ${
                         isSelectorBouncing ? "selector-jolt" : ""
-                      } ${isAutoCyclePreview ? "selector-auto-bob" : ""}`}
+                      } ${isAutoCyclePreview ? "selector-auto-bob" : ""} ${
+                        invalidSelectorFlash === tab.id ? "control-error-wiggle" : ""
+                      }`}
                       style={
                         isSelected
                           ? {
@@ -1819,6 +2008,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                                   : "1px 1px 0 0 #000000"
                                 : "none",
                               transform: "translateX(0px) scale(1.01)",
+                              cursor: isEntryControlLockActive ? "not-allowed" : "pointer",
                             }
                           : {
                               borderColor: isHoverPreview ? "#000000" : "rgba(0,0,0,0.5)",
@@ -1829,6 +2019,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                                   : "1px 1px 0 0 #000000"
                                 : "none",
                               transform: `translateX(${sideShift}px) scale(1)`,
+                              cursor: isEntryControlLockActive ? "not-allowed" : "pointer",
                             }
                       }
                       onMouseEnter={() => {
@@ -1867,13 +2058,19 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
                     invalidControlFlash === "bring"
                       ? "border-red-600 bg-[#F7F7F7] control-error-wiggle"
+                      : isEntryControlLockActive
+                      ? "border-black/20 bg-[#F7F7F7]"
                       : activePanelTab
                       ? isBringToTopActive
                         ? "border-black bg-black"
-                        : "border-black/50 bg-[#F7F7F7]"
-                      : "border-black/50 bg-[#F7F7F7]"
+                        : "border-black/20 bg-[#F7F7F7]"
+                      : "border-black/20 bg-[#F7F7F7]"
                   }`}
                   onClick={() => {
+                    if (isEntryControlLockActive) {
+                      triggerDisabledControlFeedback("bring");
+                      return;
+                    }
                     if (!activePanelTab) {
                       triggerDisabledControlFeedback("bring");
                       return;
@@ -1889,10 +2086,17 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                     setHoveredControl(null);
                   }}
                   aria-label="Bring selected section group to top"
-                  aria-disabled={!activePanelTab}
+                  aria-disabled={!activePanelTab || isEntryControlLockActive}
                   style={
                     invalidControlFlash === "bring"
                       ? { cursor: "not-allowed" }
+                      : isEntryControlLockActive
+                      ? {
+                          borderColor: "rgba(0, 0, 0, 0.2)",
+                          backgroundColor: "#F7F7F7",
+                          color: "rgba(0, 0, 0, 0.2)",
+                          cursor: "not-allowed",
+                        }
                       : activePanelTab
                       ? undefined
                       : {
@@ -1905,7 +2109,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 >
                   <BringToTopIcon
                     active={activePanelTab ? isBringToTopActive : false}
-                    disabled={!activePanelTab}
+                    disabled={!activePanelTab || isEntryControlLockActive}
+                    inactive={activePanelTab ? !isBringToTopActive : false}
                     error={invalidControlFlash === "bring"}
                   />
                 </button>
@@ -1914,13 +2119,19 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
                     invalidControlFlash === "show"
                       ? "border-red-600 bg-[#F7F7F7] control-error-wiggle"
+                      : isEntryControlLockActive
+                      ? "border-black/20 bg-[#F7F7F7]"
                       : activePanelTab
                       ? showOnlySelected
                         ? "border-black bg-black"
-                        : "border-black/50 bg-[#F7F7F7]"
-                      : "border-black/50 bg-[#F7F7F7]"
+                        : "border-black/20 bg-[#F7F7F7]"
+                      : "border-black/20 bg-[#F7F7F7]"
                   }`}
                   onClick={() => {
+                    if (isEntryControlLockActive) {
+                      triggerDisabledControlFeedback("show");
+                      return;
+                    }
                     if (!activePanelTab) {
                       triggerDisabledControlFeedback("show");
                       return;
@@ -1931,11 +2142,16 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                         setIsTruncateMode(false);
                         setExpandedInTruncate({
                           contextIdentity: false,
+                          contextEducation: false,
+                          contextExperience: false,
                           contextExternal: false,
+                          contextProfile: false,
                           ...Object.fromEntries(
                             workProjects.map((project) => [`work:${project.id}`, false]),
                           ),
-                          entries: false,
+                          ...Object.fromEntries(
+                            entriesData.map((entry) => [`entry:${entry.id}`, false]),
+                          ),
                         });
                       }
                       return next;
@@ -1950,10 +2166,17 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                     setHoveredControl(null);
                   }}
                   aria-label="Toggle entries-only visibility"
-                  aria-disabled={!activePanelTab}
+                  aria-disabled={!activePanelTab || isEntryControlLockActive}
                   style={
                     invalidControlFlash === "show"
                       ? { cursor: "not-allowed" }
+                      : isEntryControlLockActive
+                      ? {
+                          borderColor: "rgba(0, 0, 0, 0.2)",
+                          backgroundColor: "#F7F7F7",
+                          color: "rgba(0, 0, 0, 0.2)",
+                          cursor: "not-allowed",
+                        }
                       : activePanelTab
                       ? undefined
                       : {
@@ -1966,7 +2189,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 >
                   <ShowHideIcon
                     active={activePanelTab ? showOnlySelected : false}
-                    disabled={!activePanelTab}
+                    disabled={!activePanelTab || isEntryControlLockActive}
+                    inactive={activePanelTab ? !showOnlySelected : false}
                     error={invalidControlFlash === "show"}
                   />
                 </button>
@@ -1975,9 +2199,15 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   className={`inline-flex h-6 w-6 shrink-0 items-center justify-center border transition-colors ${
                     invalidControlFlash === "truncate"
                       ? "border-red-600 bg-[#F7F7F7] control-error-wiggle"
-                      : "border-black/50 bg-[#F7F7F7]"
+                      : isEntryControlLockActive
+                      ? "border-black/20 bg-[#F7F7F7]"
+                      : "border-black/20 bg-[#F7F7F7]"
                   }`}
                   onClick={() => {
+                    if (isEntryControlLockActive) {
+                      triggerDisabledControlFeedback("truncate");
+                      return;
+                    }
                     if (!canUseTruncateControl) {
                       triggerDisabledControlFeedback("truncate");
                       return;
@@ -1987,11 +2217,16 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                       if (next) {
                         setExpandedInTruncate({
                           contextIdentity: false,
+                          contextEducation: false,
+                          contextExperience: false,
                           contextExternal: false,
+                          contextProfile: false,
                           ...Object.fromEntries(
                             workProjects.map((project) => [`work:${project.id}`, false]),
                           ),
-                          entries: false,
+                          ...Object.fromEntries(
+                            entriesData.map((entry) => [`entry:${entry.id}`, false]),
+                          ),
                         });
                       }
                       return next;
@@ -2006,10 +2241,17 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                     setHoveredControl(null);
                   }}
                   aria-label="Truncate visible section content"
-                  aria-disabled={!canUseTruncateControl}
+                  aria-disabled={!canUseTruncateControl || isEntryControlLockActive}
                   style={
                     invalidControlFlash === "truncate"
                       ? { cursor: "not-allowed" }
+                      : isEntryControlLockActive
+                        ? {
+                            borderColor: "rgba(0, 0, 0, 0.2)",
+                            backgroundColor: "#F7F7F7",
+                            color: "rgba(0, 0, 0, 0.2)",
+                            cursor: "not-allowed",
+                          }
                       : canUseTruncateControl
                         ? undefined
                         : {
@@ -2021,7 +2263,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   }
                 >
                   <TruncateIcon
-                    disabled={!canUseTruncateControl}
+                    disabled={!canUseTruncateControl || isEntryControlLockActive}
+                    inactive={canUseTruncateControl && !isEntryControlLockActive}
                     error={invalidControlFlash === "truncate"}
                   />
                 </button>
@@ -2047,7 +2290,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             </div>
           </div>
 
-          <div className="w-full max-w-[480px] min-[940px]:order-1" aria-hidden="true" />
+          <div className="w-full max-w-[480px] min-[940px]:order-1">
+            <div className="h-6" aria-hidden="true" />
+          </div>
         </section>
 
         <div
@@ -2056,7 +2301,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           }`}
         />
 
-        <div className="flex flex-col gap-6">
+        <div ref={homeSectionsStartRef} />
+        <div className="flex flex-col gap-6 transition-opacity duration-560 ease-[cubic-bezier(0.22,1,0.36,1)] opacity-100">
         {!(showOnlySelected && activePanelTab !== "context") ? (
         <div className="flex flex-col" style={{ order: getSectionOrder("context") }}>
           {contextSectionOrder.map((sectionKey, index) =>
@@ -2077,7 +2323,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 {!truncateModeActive || expandedInTruncate.contextIdentity ? (
                   <div className="mt-2 grid gap-6 md:grid-cols-2 xl:gap-6">
                     <p
-                      className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/80 text-justify`}
+                      className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/40 text-justify`}
                       style={{ fontFeatureSettings: "'salt' 1" }}
                     >
                       <NameHighlight
@@ -2090,7 +2336,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                       {identityBodyOne}
                     </p>
                     <p
-                      className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/80 text-justify`}
+                      className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/40 text-justify`}
                       style={{ fontFeatureSettings: "'salt' 1" }}
                     >
                       {identityBodyTwo}
@@ -2113,29 +2359,41 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 {!truncateModeActive || expandedInTruncate.contextExternal ? (
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {externalLinks.map((link) => (
+                      (() => {
+                        const isLinkFlash = invalidExternalLinkFlash === link.label;
+                        return (
                       <a
                         key={link.label}
                         href={link.href}
-                        className={`group inline-flex items-center gap-2 border px-3 py-1.5 ${identityScaleClass} font-medium leading-none whitespace-nowrap ${
+                        className={`group inline-flex h-[26px] items-center gap-2 border px-2 py-[3px] text-[16px] font-medium leading-none whitespace-nowrap ${
                           link.disabled
                             ? "border-black/20 text-black/20"
-                            : "border-black/50 text-black transition-[color,border-color,box-shadow,padding-right] duration-320 ease-[cubic-bezier(0.22,1,0.36,1)] hover:pr-4"
-                        }`}
+                            : "border-black/50 text-black transition-[color,border-color,box-shadow,padding-right] duration-320 ease-[cubic-bezier(0.22,1,0.36,1)] hover:pr-4 hover:cursor-alias"
+                        } ${isLinkFlash ? "control-error-wiggle" : ""}`}
                         style={
                           link.disabled
-                            ? {
-                                color: "rgba(0, 0, 0, 0.2)",
-                                borderColor: "rgba(0, 0, 0, 0.2)",
-                                boxShadow: "none",
-                                cursor: "wait",
-                                fontWeight: 400,
-                              }
+                            ? isLinkFlash
+                              ? {
+                                  color: "#DC2626",
+                                  borderColor: "#DC2626",
+                                  boxShadow: "none",
+                                  cursor: "wait",
+                                  fontWeight: 400,
+                                }
+                              : {
+                                  color: "rgba(0, 0, 0, 0.2)",
+                                  borderColor: "rgba(0, 0, 0, 0.2)",
+                                  boxShadow: "none",
+                                  cursor: "wait",
+                                  fontWeight: 400,
+                                }
                             : { boxShadow: "none" }
                         }
                         onMouseEnter={(event) => {
                           if (link.disabled) {
                             return;
                           }
+                          event.currentTarget.style.cursor = "alias";
                           event.currentTarget.style.color = "#003CFF";
                           event.currentTarget.style.borderColor = "#003CFF";
                           event.currentTarget.style.boxShadow = "2px 2px 0 0 #003CFF";
@@ -2144,6 +2402,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                           if (link.disabled) {
                             return;
                           }
+                          event.currentTarget.style.cursor = "";
                           event.currentTarget.style.color = "#000000";
                           event.currentTarget.style.borderColor = "rgba(0,0,0,0.5)";
                           event.currentTarget.style.boxShadow = "none";
@@ -2154,6 +2413,14 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                         onClick={(event) => {
                           if (link.disabled) {
                             event.preventDefault();
+                            setInvalidExternalLinkFlash(link.label);
+                            if (invalidExternalLinkFlashTimeoutRef.current !== null) {
+                              window.clearTimeout(invalidExternalLinkFlashTimeoutRef.current);
+                            }
+                            invalidExternalLinkFlashTimeoutRef.current = window.setTimeout(
+                              () => setInvalidExternalLinkFlash(null),
+                              420,
+                            );
                           }
                         }}
                       >
@@ -2168,6 +2435,8 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                           <ArrowIcon />
                         </span>
                       </a>
+                        );
+                      })()
                     ))}
                   </div>
                 ) : null}
@@ -2177,82 +2446,139 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         </div>
         ) : null}
 
-        {!(showOnlySelected && activePanelTab === "context") ? (
           <div className="flex flex-col" style={{ order: 1 }}>
-            {visibleMixedWorkEntries.map((item, index) => {
-              if (item === "entries") {
+            {visibleOrderedContentItems.map((item, index) => {
+              if (item.startsWith("entry:")) {
+                const entryId = item.replace("entry:", "");
+                const entry = entryById[entryId];
+                if (!entry) {
+                  return null;
+                }
+                const entryKey = `entry:${entry.id}`;
                 const entriesReveal = reveal(340);
                 return (
                   <section
-                    key="entries"
+                    key={entry.id}
                     className={`${index === 0 ? "" : "mt-6"} ${entriesReveal.className}`}
                     style={{
                       ...entriesReveal.style,
                       cursor:
                         !truncateModeActive &&
-                        entryPhase === "closed" &&
+                        expandedEntryId !== entry.id &&
                         cursorBadgeMode === "read-more"
                           ? "nesw-resize"
-                          : "pointer",
+                          : !truncateModeActive &&
+                              expandedEntryId === entry.id &&
+                              cursorBadgeMode === "close-entry"
+                            ? "sw-resize"
+                          : "default",
                     }}
                     onMouseEnter={(event) => {
-                      if (
-                        !truncateModeActive &&
-                        entryPhase === "closed" &&
-                        !isEntriesHeaderHovered
-                      ) {
-                        setCursorBadgeMode("read-more");
-                        updateCursorBadgePosition(event);
+                      const headerNode = entryHeaderRefs.current[entry.id];
+                      const inHeaderZone = headerNode
+                        ? event.clientY <= headerNode.getBoundingClientRect().bottom
+                        : false;
+                      if (inHeaderZone) {
+                        if (
+                          cursorBadgeMode === "read-more" ||
+                          cursorBadgeMode === "close-entry"
+                        ) {
+                          setCursorBadgeMode(null);
+                        }
+                        return;
+                      }
+                      if (!truncateModeActive && !isEntriesHeaderHovered) {
+                        if (expandedEntryId === entry.id) {
+                          setCursorBadgeMode("close-entry");
+                          updateCursorBadgePosition(event);
+                          return;
+                        }
+                        if (expandedEntryId !== entry.id) {
+                          setCursorBadgeMode("read-more");
+                          updateCursorBadgePosition(event);
+                        }
                       }
                     }}
                     onMouseMove={(event) => {
-                      if (
-                        !truncateModeActive &&
-                        entryPhase === "closed" &&
-                        !isEntriesHeaderHovered
-                      ) {
-                        updateCursorBadgePosition(event);
+                      const headerNode = entryHeaderRefs.current[entry.id];
+                      const inHeaderZone = headerNode
+                        ? event.clientY <= headerNode.getBoundingClientRect().bottom
+                        : false;
+                      if (inHeaderZone) {
+                        if (
+                          cursorBadgeMode === "read-more" ||
+                          cursorBadgeMode === "close-entry"
+                        ) {
+                          setCursorBadgeMode(null);
+                        }
+                        return;
+                      }
+                      if (!truncateModeActive && !isEntriesHeaderHovered) {
+                        if (expandedEntryId === entry.id) {
+                          setCursorBadgeMode("close-entry");
+                          updateCursorBadgePosition(event);
+                          return;
+                        }
+                        if (expandedEntryId !== entry.id) {
+                          setCursorBadgeMode("read-more");
+                          updateCursorBadgePosition(event);
+                        }
                       }
                     }}
                     onMouseLeave={() => {
-                      if (cursorBadgeMode === "read-more") {
+                      if (
+                        cursorBadgeMode === "read-more" ||
+                        cursorBadgeMode === "close-entry"
+                      ) {
                         setCursorBadgeMode(null);
                       }
                     }}
                     onClick={() => {
-                      if (!truncateModeActive && entryPhase === "closed") {
-                        openEntry();
+                      if (truncateModeActive) {
+                        return;
                       }
+                      if (expandedEntryId === entry.id) {
+                        closeEntry();
+                        return;
+                      }
+                      openEntry(entry.id);
                     }}
                   >
-                    <div ref={homeEntryDividerRef}>
+                    <div
+                      ref={(node) => {
+                        entryHeaderRefs.current[entry.id] = node;
+                      }}
+                    >
                       <HeaderWithDivider
                         className="mb-2"
                         dividerClassName={
                           activePanelTab === "entries" ? "bg-[#FFE500]" : ""
                         }
                       >
-                        <button
-                          type="button"
-                          className="flex w-full items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted text-left"
-                          onMouseEnter={() => {
-                            setIsEntriesHeaderHovered(true);
-                            if (cursorBadgeMode === "read-more") {
-                              setCursorBadgeMode(null);
-                            }
-                          }}
-                          onMouseLeave={() => {
-                            setIsEntriesHeaderHovered(false);
-                          }}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            toggleSectionContent("entries", "entries");
-                          }}
-                          aria-label="Show entries section"
-                        >
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted">
+                          <button
+                            type="button"
+                            className="inline-flex cursor-crosshair items-center gap-2 text-left"
+                            onMouseEnter={() => {
+                              setIsEntriesHeaderHovered(true);
+                              if (
+                                cursorBadgeMode === "read-more" ||
+                                cursorBadgeMode === "close-entry"
+                              ) {
+                                setCursorBadgeMode(null);
+                              }
+                            }}
+                            onMouseLeave={() => {
+                              setIsEntriesHeaderHovered(false);
+                            }}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleSectionContent(entryKey, "entries");
+                            }}
+                            aria-label="Show entries section"
+                          >
                             <span
-                              className="px-1.5 py-0.5"
+                              className="cursor-crosshair px-1.5 py-0.5"
                               style={
                                 activePanelTab === "entries"
                                   ? { backgroundColor: "#FFE500", color: "#000000" }
@@ -2262,30 +2588,128 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                               ENTRIES
                             </span>
                             <span
-                              className={`font-medium ${
+                              className={`cursor-crosshair font-medium ${
                                 activePanelTab === "entries" ? "text-black/80" : ""
                               }`}
                             >
-                              {entryTitle}
+                              {entry.title}
                             </span>
-                          </div>
-
-                          <span className="font-medium">{entryYear}</span>
-                        </button>
+                          </button>
+                          <span className="font-medium">{entry.year}</span>
+                        </div>
                       </HeaderWithDivider>
                     </div>
 
-                    {!truncateModeActive || expandedInTruncate.entries ? (
-                      <div className="mt-2 grid gap-6 md:grid-cols-2">
-                        <p
-                          className="text-[16px] leading-[1.5] text-black/40 text-justify"
-                          style={{ fontFeatureSettings: "'salt' 1" }}
-                        >
-                          {entryExcerpt}
-                        </p>
-                        <div className="hidden md:block" aria-hidden="true" />
+                    {!truncateModeActive || expandedInTruncate[entryKey] ? (
+                      <div className="mt-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div>
+                          <div
+                            className={`grid transition-[grid-template-rows,opacity] duration-320 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                              expandedEntryId === entry.id
+                                ? "grid-rows-[0fr] opacity-0"
+                                : "grid-rows-[1fr] opacity-100"
+                            }`}
+                          >
+                            <p
+                              className="min-h-0 overflow-hidden text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                              style={{
+                                fontFeatureSettings: "'salt' 1",
+                                display: "-webkit-box",
+                                WebkitLineClamp: 5,
+                                WebkitBoxOrient: "vertical",
+                              }}
+                            >
+                              {entry.excerpt}
+                            </p>
+                          </div>
+
+                          <div
+                            className={`grid transition-[grid-template-rows,opacity] duration-420 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                              expandedEntryId === entry.id
+                                ? "mt-0.5 grid-rows-[1fr] opacity-100 delay-140"
+                                : "mt-0 grid-rows-[0fr] opacity-0"
+                            }`}
+                          >
+                            <div className="min-h-0 overflow-hidden">
+                              <div className="text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line">
+                                {entry.paragraphs.map((paragraph, paragraphIndex) => (
+                                  <p
+                                    key={`${entry.id}-${paragraphIndex}`}
+                                    className="mb-4"
+                                    style={{ fontFeatureSettings: "'salt' 1" }}
+                                  >
+                                    {paragraph}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-start justify-start">
+                          <button
+                            type="button"
+                            className="bg-black/10 px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              if (expandedEntryId === entry.id) {
+                                closeEntry();
+                              } else {
+                                openEntry(entry.id);
+                              }
+                            }}
+                          >
+                            {expandedEntryId === entry.id ? "CLOSE ENTRY" : "READ MORE"}
+                          </button>
+                        </div>
                       </div>
                     ) : null}
+                  </section>
+                );
+              }
+
+              if (item === "context:education") {
+                const contextEducationReveal = reveal(220);
+                return (
+                  <section
+                    key="context-education"
+                    className={`${index === 0 ? "" : "mt-6"} ${contextEducationReveal.className}`}
+                    style={contextEducationReveal.style}
+                  >
+                    <div className="grid gap-6 md:grid-cols-2 xl:gap-6">
+                      <div>
+                        <SectionHeader
+                          activeTab={activePanelTab}
+                          secondary="EDUCATION"
+                          onClick={() => toggleSectionContent("contextEducation", "context")}
+                        />
+
+                        {!truncateModeActive || expandedInTruncate.contextEducation ? (
+                          <p
+                            className={`mt-2 max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/40 text-justify`}
+                            style={{ fontFeatureSettings: "'salt' 1" }}
+                          >
+                            {educationBody}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        <SectionHeader
+                          activeTab={activePanelTab}
+                          secondary="EXPERIENCE"
+                          onClick={() => toggleSectionContent("contextExperience", "context")}
+                        />
+
+                        {!truncateModeActive || expandedInTruncate.contextExperience ? (
+                          <p
+                            className={`mt-2 max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/40 text-justify`}
+                            style={{ fontFeatureSettings: "'salt' 1" }}
+                          >
+                            {experienceBody}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
                   </section>
                 );
               }
@@ -2309,15 +2733,15 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   style={workReveal.style}
                 >
                   <HeaderWithDivider className="mb-2">
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted text-left"
-                      onClick={() => toggleSectionContent(key, "work")}
-                      aria-label={`Show ${project.title.toLowerCase()} work section`}
-                    >
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between text-[12px] font-medium tracking-[0.05em] text-muted">
+                      <button
+                        type="button"
+                        className="inline-flex cursor-crosshair items-center gap-2 text-left"
+                        onClick={() => toggleSectionContent(key, "work")}
+                        aria-label={`Show ${project.title.toLowerCase()} work section`}
+                      >
                         <span
-                          className="px-1.5 py-0.5"
+                          className="cursor-crosshair px-1.5 py-0.5"
                           style={
                             activePanelTab === "work"
                               ? { backgroundColor: "#FF4FD9", color: "#000000" }
@@ -2327,16 +2751,17 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                           WORK
                         </span>
                         <span
-                          className={`font-medium ${
+                          className={`cursor-crosshair font-medium ${
                             activePanelTab === "work" ? "text-black/80" : ""
                           }`}
                         >
                           {project.title}
                         </span>
-                      </div>
-
-                      <span className="font-medium">{project.year}</span>
-                    </button>
+                      </button>
+                      <span className="font-medium">
+                        {"year" in project && project.year ? project.year : ""}
+                      </span>
+                    </div>
                   </HeaderWithDivider>
 
                   {isExpanded ? (
@@ -2345,16 +2770,28 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                         <button
                           key={src}
                           type="button"
-                          className="relative w-full cursor-crosshair overflow-hidden bg-black/5 text-left"
+                          className="no-save-media relative w-full cursor-crosshair overflow-hidden bg-black/5 text-left"
                           style={{ cursor: "crosshair" }}
                           onClick={() => handleWorkImageClick(src)}
+                          onContextMenu={(event) => {
+                            event.preventDefault();
+                          }}
+                          onDragStart={(event) => {
+                            event.preventDefault();
+                          }}
                           aria-label={`Preview ${project.title.toLowerCase()} work image`}
                         >
                           <img
                             src={src}
                             alt=""
-                            className="aspect-[16/9] h-auto w-full cursor-crosshair select-none object-cover"
+                            className="no-save-media aspect-[16/9] h-auto w-full cursor-crosshair select-none object-cover"
                             draggable={false}
+                            onContextMenu={(event) => {
+                              event.preventDefault();
+                            }}
+                            onDragStart={(event) => {
+                              event.preventDefault();
+                            }}
                           />
                         </button>
                       ))}
@@ -2384,7 +2821,45 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               );
             })}
           </div>
+
+        </div>
+
+        {!(showOnlySelected && activePanelTab !== "context") ? (
+          <section
+            className={`mt-6 ${reveal(300).className}`}
+            style={{
+              ...reveal(300).style,
+              order: sectionPriority === "context" ? 0 : 999,
+            }}
+          >
+            <SectionHeader
+              activeTab={activePanelTab}
+              secondary="PROFILE"
+              onClick={() => toggleSectionContent("contextProfile", "context")}
+            />
+
+            {!truncateModeActive || expandedInTruncate.contextProfile ? (
+              <div className="mt-2 grid gap-6 md:grid-cols-2 xl:gap-6">
+                <p
+                  className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/40 text-justify`}
+                  style={{ fontFeatureSettings: "'salt' 1" }}
+                >
+                  {profileBodyOne} {profileBodyTwo}
+                </p>
+                <p
+                  className={`max-w-[52rem] ${identityScaleClass} font-medium leading-[1.5] tracking-[-0.015em] text-black/40 text-justify`}
+                  style={{ fontFeatureSettings: "'salt' 1" }}
+                >
+                  {profileBodyThree} {profileBodyFour}
+                </p>
+              </div>
+            ) : null}
+          </section>
         ) : null}
+
+        <div className="order-last mt-6 flex items-center justify-between text-[12px] leading-[1.5] text-black/40">
+          <span>raghav agarwal</span>
+          <span>rghv.ca @ 2026</span>
         </div>
       </div>
     </main>
