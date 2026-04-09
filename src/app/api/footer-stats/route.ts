@@ -10,12 +10,76 @@ const ALL_TIME_VISITORS_KEY = "footer:visitors:all-time";
 const DAY_SECONDS = 60 * 60 * 24;
 const regionDisplayNames = new Intl.DisplayNames(["en"], { type: "region" });
 
-function resolveCountryName(countryCode: string) {
+function decodeLegacyText(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function resolveCountryLabel(countryCode: string) {
   const code = countryCode.trim().toUpperCase();
   if (!code) {
     return "UNKNOWN COUNTRY";
   }
-  return regionDisplayNames.of(code) ?? "UNKNOWN COUNTRY";
+  if (code === "US") {
+    return "US";
+  }
+  if (code === "GB") {
+    return "UK";
+  }
+  if (code === "AE") {
+    return "UAE";
+  }
+  const countryName = regionDisplayNames.of(code);
+  if (!countryName) {
+    return "UNKNOWN COUNTRY";
+  }
+  const uppercaseCountryName = countryName.toUpperCase();
+  if (uppercaseCountryName === "UNITED STATES") {
+    return "US";
+  }
+  if (uppercaseCountryName === "UNITED KINGDOM") {
+    return "UK";
+  }
+  if (uppercaseCountryName === "UNITED ARAB EMIRATES") {
+    return "UAE";
+  }
+  return uppercaseCountryName;
+}
+
+function normalizeCountryText(country: string) {
+  const normalized = decodeLegacyText(country).trim().toUpperCase();
+  if (!normalized) {
+    return "UNKNOWN COUNTRY";
+  }
+  if (normalized === "UNITED STATES" || normalized === "US") {
+    return "US";
+  }
+  if (normalized === "UNITED KINGDOM" || normalized === "UK" || normalized === "GB") {
+    return "UK";
+  }
+  if (
+    normalized === "UNITED ARAB EMIRATES" ||
+    normalized === "UAE" ||
+    normalized === "AE"
+  ) {
+    return "UAE";
+  }
+  return normalized;
+}
+
+function normalizeVisitorLabel(rawLabel: string) {
+  const decoded = decodeLegacyText(rawLabel).trim();
+  if (!decoded) {
+    return "UNKNOWN, UNKNOWN COUNTRY";
+  }
+  const [rawCity = "UNKNOWN", ...countryParts] = decoded.split(",");
+  const city = decodeLegacyText(rawCity).trim().toUpperCase() || "UNKNOWN";
+  const countryJoined = countryParts.join(",").trim();
+  const country = normalizeCountryText(countryJoined || "UNKNOWN COUNTRY");
+  return `${city}, ${country}`;
 }
 
 function getTodayKeyInToronto() {
@@ -84,10 +148,12 @@ async function getRedisClient() {
 
 export async function GET() {
   const requestHeaders = await headers();
-  const city = requestHeaders.get("x-vercel-ip-city")?.trim().toUpperCase() || "UNKNOWN";
+  const city = decodeLegacyText(requestHeaders.get("x-vercel-ip-city") ?? "")
+    .trim()
+    .toUpperCase() || "UNKNOWN";
   const countryCode = requestHeaders.get("x-vercel-ip-country")?.trim().toUpperCase() || "";
-  const country = resolveCountryName(countryCode);
-  const currentVisitorLabel = `${city}, ${country}`;
+  const country = resolveCountryLabel(countryCode);
+  const currentVisitorLabel = normalizeVisitorLabel(`${city}, ${country}`);
   const todayKey = getTodayKeyInToronto();
   const todayVisitorsKey = `footer:visitors:${todayKey}`;
 
@@ -107,7 +173,7 @@ export async function GET() {
   if (redisClient) {
     const previousLastVisitor = await redisClient.get(LAST_VISITOR_KEY);
     if (previousLastVisitor) {
-      lastVisitorLabel = previousLastVisitor;
+      lastVisitorLabel = normalizeVisitorLabel(previousLastVisitor);
     }
     await redisClient.set(LAST_VISITOR_KEY, currentVisitorLabel);
     await redisClient.sAdd(todayVisitorsKey, visitorId);
@@ -127,7 +193,7 @@ export async function GET() {
   } else {
     const previousLastVisitor = await kvRequest(`/get/${encodeURIComponent(LAST_VISITOR_KEY)}`);
     if (typeof previousLastVisitor?.result === "string" && previousLastVisitor.result.length > 0) {
-      lastVisitorLabel = previousLastVisitor.result;
+      lastVisitorLabel = normalizeVisitorLabel(previousLastVisitor.result);
     }
 
     await kvRequest(
