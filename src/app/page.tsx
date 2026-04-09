@@ -1445,7 +1445,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   };
   const getSectionHighlightPopupText = (tab: PanelTabId) =>
     activePanelTab === tab
-      ? "REMOVING HIGHLIGHT"
+      ? "HIGHLIGHT REMOVED"
       : `HIGHLIGHTING ${tab.toUpperCase()}`;
 
   const toggleSectionContent = (sectionKey: string, tab: PanelTabId) => {
@@ -1674,8 +1674,13 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       ? "SHOW CALGARY"
       : "SHOW WATERLOO"
     : null;
+  const getSectionHoverCursorLabel = (tab: PanelTabId) =>
+    activePanelTab === tab ? "REMOVE HIGHLIGHT" : `HIGHLIGHT ${tab.toUpperCase()}`;
   const cursorDividerLabel = hoveredDividerTab
-    ? `HIGHLIGHT ${hoveredDividerTab.toUpperCase()}`
+    ? getSectionHoverCursorLabel(hoveredDividerTab)
+    : null;
+  const cursorSelectorLabel = hoveredSelectorTab
+    ? getSectionHoverCursorLabel(hoveredSelectorTab)
     : null;
   const cursorOutboundLinkLabel = hoveredOutboundLink ? "OPEN IN NEW TAB" : null;
   const cursorProfileImageLabel = hoveredProfileImage
@@ -1688,10 +1693,12 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const cursorIntroLabel = hoveredIntroToggle ? "SITE INFO" : null;
   const activeCursorBadgeText = cursorControlLabel
     ? cursorControlLabel
-    : cursorLocationLabel
-      ? cursorLocationLabel
+      : cursorLocationLabel
+        ? cursorLocationLabel
       : cursorDividerLabel
         ? cursorDividerLabel
+      : cursorSelectorLabel
+        ? cursorSelectorLabel
       : cursorOutboundLinkLabel
         ? cursorOutboundLinkLabel
       : cursorFooterBrandLabel
@@ -2031,6 +2038,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       {cursorControlLabel ||
       cursorLocationLabel ||
       cursorDividerLabel ||
+      cursorSelectorLabel ||
       cursorOutboundLinkLabel ||
       cursorFooterBrandLabel ||
       cursorTrailModeLabel ||
@@ -2056,6 +2064,10 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           ) : cursorDividerLabel ? (
             <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
               {cursorDividerLabel}
+            </span>
+          ) : cursorSelectorLabel ? (
+            <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
+              {cursorSelectorLabel}
             </span>
           ) : cursorOutboundLinkLabel ? (
             <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
@@ -2517,7 +2529,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                                     : "1px 1px 0 0 #000000"
                                   : "none",
                                 transform: `translateX(0px) scale(${scaleValue})`,
-                                cursor: isEntryControlLockActive ? "not-allowed" : "pointer",
+                                cursor: isEntryControlLockActive ? "not-allowed" : "crosshair",
                               }
                             : {
                                 borderColor: isHoverPreview ? "#000000" : "rgba(0,0,0,0.5)",
@@ -2528,17 +2540,19 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                                     : "1px 1px 0 0 #000000"
                                   : "none",
                                 transform: `translateX(${sideShift}px) scale(${scaleValue})`,
-                                cursor: isEntryControlLockActive ? "not-allowed" : "pointer",
+                                cursor: isEntryControlLockActive ? "not-allowed" : "crosshair",
                               }
                         }
-                        onMouseEnter={() => {
+                        onMouseEnter={(event) => {
                           setHoveredSelectorTab(tab.id);
                           setAutoHoverSelectorTab(null);
+                          updateCursorBadgePosition(event);
                         }}
-                        onMouseMove={() => {
+                        onMouseMove={(event) => {
                           if (!isSelectorGroupHovered) {
                             setIsSelectorGroupHovered(true);
                           }
+                          updateCursorBadgePosition(event);
                         }}
                         onMouseLeave={() => {
                           setHoveredSelectorTab((prev) =>
