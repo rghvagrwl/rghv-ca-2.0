@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import localFont from "next/font/local";
@@ -43,8 +42,6 @@ export const metadata: Metadata = {
   },
 };
 
-const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -57,7 +54,6 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
       </body>
-      {gaMeasurementId ? <GoogleAnalytics gaId={gaMeasurementId} /> : null}
     </html>
   );
 }
