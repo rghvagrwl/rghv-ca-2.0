@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const switzer = localFont({
@@ -47,7 +48,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${switzer.variable} h-full scroll-smooth antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
