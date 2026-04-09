@@ -363,9 +363,6 @@ function SectionHeader({
               ...(isContextActive
                 ? { backgroundColor: contextColor, color: "#000000" }
                 : { backgroundColor: "rgba(0,0,0,0.05)", color: "rgba(0,0,0,0.4)" }),
-              ...(strokeCycleActive
-                ? ({ "--section-stroke-color": contextColor } as CSSProperties)
-                : null),
             }
           }
         >
@@ -628,6 +625,9 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [cursorButtonTiltDeg, setCursorButtonTiltDeg] = useState(0);
   const [hoveredIntroToggle, setHoveredIntroToggle] = useState(false);
   const [strokeCycleStep, setStrokeCycleStep] = useState(-1);
+  const [footerDateLabel, setFooterDateLabel] = useState("DATE");
+  const [lastVisitorLabel, setLastVisitorLabel] = useState("UNKNOWN, --");
+  const [visitsToday, setVisitsToday] = useState(0);
   const [hoveredProfileImage, setHoveredProfileImage] = useState(false);
   const [profileTooltipFlip, setProfileTooltipFlip] = useState(false);
   const [isEntriesHeaderHovered, setIsEntriesHeaderHovered] = useState(false);
@@ -714,6 +714,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const invalidExternalLinkFlashTimeoutRef = useRef<number | null>(null);
   const centerPopupTimeoutRef = useRef<number | null>(null);
   const profileWindowRef = useRef<HTMLDivElement | null>(null);
+  const orderedDividerStrokeKeysRef = useRef<string[]>([]);
   const profileWindowDragOffsetRef = useRef<Point>({ x: 0, y: 0 });
   const profileWindowResizeStartRef = useRef<{
     x: number;
@@ -761,6 +762,74 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   useEffect(() => {
     const timeoutId = window.setTimeout(() => setIsLoaded(true), 40);
     return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    let isMounted = true;
+    const timer = window.setTimeout(async () => {
+      const now = new Date();
+      const dateLabel = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      })
+        .format(now)
+        .toUpperCase();
+      if (isMounted) {
+        setFooterDateLabel(dateLabel);
+      }
+
+      const dateKey = new Intl.DateTimeFormat("en-CA", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(now);
+
+      let city = "UNKNOWN";
+      let country = "--";
+      try {
+        const response = await fetch("/api/geo", { cache: "no-store" });
+        if (response.ok) {
+          const geo = (await response.json()) as { city?: string | null; country?: string | null };
+          if (geo.city) {
+            city = geo.city;
+          }
+          if (geo.country) {
+            country = geo.country;
+          }
+        }
+      } catch {
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
+        const cityPart = timeZone.includes("/") ? timeZone.split("/").pop() ?? "UNKNOWN" : "UNKNOWN";
+        city = cityPart.replace(/_/g, " ").toUpperCase();
+      }
+
+      const currentVisitorLabel = `${city}, ${country}`;
+      const storedLastVisitor = window.localStorage.getItem("rghv:last-visitor");
+      if (isMounted) {
+        setLastVisitorLabel(storedLastVisitor ?? currentVisitorLabel);
+      }
+      window.localStorage.setItem("rghv:last-visitor", currentVisitorLabel);
+
+      const storedDate = window.localStorage.getItem("rghv:visit-date");
+      const storedCountRaw = window.localStorage.getItem("rghv:visit-count");
+      const storedCount = Number.parseInt(storedCountRaw ?? "0", 10);
+      const nextCount =
+        storedDate === dateKey ? (Number.isNaN(storedCount) ? 1 : storedCount + 1) : 1;
+      if (isMounted) {
+        setVisitsToday(nextCount);
+      }
+      window.localStorage.setItem("rghv:visit-date", dateKey);
+      window.localStorage.setItem("rghv:visit-count", String(nextCount));
+    }, 0);
+
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -919,7 +988,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 color: `hsl(${Math.floor(Math.random() * 360)} 100% 58%)`,
                 size: Math.floor(Math.random() * 7) + 4,
                 lockedColor: true,
-                lifetimeMs: 5200,
+                lifetimeMs: 1600,
               },
             );
           }
@@ -1591,25 +1660,40 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     keys.push("context:profile");
     return keys;
   }, [visibleOrderedContentItems]);
+  useEffect(() => {
+    orderedDividerStrokeKeysRef.current = orderedDividerStrokeKeys;
+  }, [orderedDividerStrokeKeys]);
 
   useEffect(() => {
-    if (!isLoaded || !orderedDividerStrokeKeys.length) {
+    if (!isLoaded) {
       return;
     }
+    let currentIndex = 0;
+    let intervalId: number | null = null;
 
     const startTimeout = window.setTimeout(() => {
+      const cycleLength = orderedDividerStrokeKeysRef.current.length;
+      if (!cycleLength) {
+        return;
+      }
       setStrokeCycleStep(0);
-    }, 140);
-
-    const intervalId = window.setInterval(() => {
-      setStrokeCycleStep((prev) => (prev + 1) % orderedDividerStrokeKeys.length);
-    }, 1000);
+      intervalId = window.setInterval(() => {
+        const latestCycleLength = orderedDividerStrokeKeysRef.current.length;
+        if (!latestCycleLength) {
+          return;
+        }
+        currentIndex = (currentIndex + 1) % latestCycleLength;
+        setStrokeCycleStep(currentIndex);
+      }, 1000);
+    }, 4000);
 
     return () => {
       window.clearTimeout(startTimeout);
-      window.clearInterval(intervalId);
+      if (intervalId !== null) {
+        window.clearInterval(intervalId);
+      }
     };
-  }, [isLoaded, orderedDividerStrokeKeys]);
+  }, [isLoaded]);
   const activeStrokeCycleKeys = useMemo(() => {
     if (!orderedDividerStrokeKeys.length || strokeCycleStep < 0) {
       return [];
@@ -1817,7 +1901,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             <div className="flex items-center justify-between text-[12px] uppercase tracking-[0.02em] text-black/40">
               <button
                 type="button"
-                className="navbar-click location-switch-click inline-flex flex-1 items-center justify-between pr-3 transition-colors hover:text-black/60"
+                className="navbar-click location-switch-click inline-flex flex-1 cursor-crosshair items-center justify-between pr-3 transition-colors hover:text-black/60"
                 onClick={handleLocationToggle}
                 onMouseEnter={(event) => {
                   setHoveredLocationToggle(true);
@@ -1831,14 +1915,14 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   locationKey === "waterloo" ? "Calgary" : "Waterloo"
                 }`}
               >
-                <span className="location-switch-content inline-flex items-center gap-2">
-                  <span className="inline-block w-[44px] text-left">
+                <span className="location-switch-content inline-flex cursor-crosshair items-center gap-2">
+                  <span className="inline-block w-[44px] cursor-crosshair text-left">
                     {activeLocation.code}
                   </span>
-                  <span className="inline-block w-[90px] text-left">
+                  <span className="inline-block w-[90px] cursor-crosshair text-left">
                     {activeLocation.city}
                   </span>
-                  <span className="inline-block w-[68px] text-left font-sans">
+                  <span className="inline-block w-[68px] cursor-crosshair text-left font-sans">
                     {clock}
                   </span>
                 </span>
@@ -1907,7 +1991,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
             <div
               className={`grid transition-[grid-template-rows,margin-top] duration-520 ease-[cubic-bezier(0.25,1,0.5,1)] ${
-                isIntroOpen ? "mt-2 grid-rows-[1fr]" : "mt-0 grid-rows-[0fr]"
+                isIntroOpen ? "mt-2 grid-rows-[1fr] delay-0" : "mt-0 grid-rows-[0fr] delay-260"
               }`}
             >
               <div
@@ -2692,9 +2776,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                                   ...(activePanelTab === "entries"
                                     ? { backgroundColor: "#FFE500", color: "#000000" }
                                     : { backgroundColor: "rgba(0,0,0,0.05)" }),
-                                  ...(activeStrokeCycleKeys.includes(`entry:${entry.id}`)
-                                    ? ({ "--section-stroke-color": "#FFE500" } as CSSProperties)
-                                    : null),
                                 }
                               }
                             >
@@ -2936,9 +3017,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                               ...(activePanelTab === "work"
                                 ? { backgroundColor: "#FF4FD9", color: "#000000" }
                                 : { backgroundColor: "rgba(0,0,0,0.05)" }),
-                              ...(activeStrokeCycleKeys.includes(`work:${project.id}`)
-                                ? ({ "--section-stroke-color": "#FF4FD9" } as CSSProperties)
-                                : null),
                             }
                           }
                         >
@@ -3051,9 +3129,21 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           </section>
         ) : null}
 
-        <div className="order-last mt-6 flex items-center justify-between text-[12px] leading-[1.5] text-black/40">
-          <span>raghav agarwal</span>
-          <span>rghv.ca @ 2026</span>
+        <div className="order-last mt-6 border-t border-black/10 pt-2 text-[12px] leading-[1.5] text-black/40">
+          <div className="grid gap-6 min-[940px]:grid-cols-3 xl:gap-20">
+          <div className="flex items-center justify-between">
+            <span>LAST VISITOR FROM</span>
+            <span>{lastVisitorLabel}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>{footerDateLabel}</span>
+            <span>{visitsToday} VISITS TODAY</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>RGHV.CA</span>
+            <span>BY RAGHAV AGARWAL</span>
+          </div>
+          </div>
         </div>
       </div>
     </main>
