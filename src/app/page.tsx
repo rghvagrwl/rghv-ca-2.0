@@ -1637,7 +1637,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       cursorProfileImageLabel ||
       cursorBadgeMode ? (
         <div
-          className="pointer-events-none fixed z-[120]"
+          className="pointer-events-none fixed z-[120] hidden md:block"
           style={{
             left: cursorBadgePosition.x + (flipX ? -badgeOffset : badgeOffset),
             top: cursorBadgePosition.y + (flipY ? -badgeOffset : badgeOffset),
