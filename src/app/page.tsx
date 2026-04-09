@@ -13,7 +13,7 @@ const experienceBody =
 const ideasBody =
   "Thinking about building a design agency, exploring a new fitness consumer app, and learning motion design and video editing to create cinematic shorts this summer.";
 const booksBody =
-  "Reading Project Hail Mary by Andy Weir, The Almanack of Naval Ravikant, and Colorless Tsukuru Tazaki and His Years of Pilgrimage by Haruki Murakami.";
+  "Currently reading Project Hail Mary by Andy Weir, The Almanack of Naval Ravikant, and Colorless by Tsukuru Tazaki.";
 const profileBodyOne =
   "I spend a lot of time around things that feel visual or expressive. I got into photography after picking up a camera in 2024, and drawing has been something I’ve been into for as long as I can remember.";
 const profileBodyTwo =
@@ -924,9 +924,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           workProjects.map((project) => [project.id, shuffleArray(project.images)]),
         ),
       );
-      setContextSectionOrder(
-        Math.random() < 0.5 ? ["identity", "external"] : ["external", "identity"],
-      );
+      setContextSectionOrder(["identity", "external"]);
     }, 0);
 
     return () => {
