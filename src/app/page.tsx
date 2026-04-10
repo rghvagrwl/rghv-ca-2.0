@@ -105,7 +105,7 @@ const topMarqueeItems = [
   "Content order is not intentional",
   "This is one of many possible versions",
   "In progress, constantly evolving",
-  "Built in 04/26",
+  "MADE IN 2026",
   "This version is not final",
   "( •_•)O*¯`·.¸.·´¯`°Q(•_• )",
   "•͡˘㇁•͡˘",
@@ -2336,7 +2336,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               >
                 <p className="text-[12px] leading-[1.5] text-black/80 text-justify">
                   The idea for this version of the website began in March of
-                  2025, then was paused due to a lack of creative vision. It
+                  2026, then was paused due to a lack of creative vision. It
                   was revisited a few weeks later following a shift in
                   perspective, with a focus on building and committing rather
                   than waiting for the &ldquo;perfect moment&rdquo;. The site
