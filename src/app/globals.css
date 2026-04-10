@@ -91,7 +91,7 @@ a[aria-disabled="true"] {
   display: flex;
   width: max-content;
   will-change: transform;
-  animation: top-news-marquee 180s linear infinite;
+  animation: top-news-marquee 210s linear infinite;
 }
 
 .top-news-marquee-list {

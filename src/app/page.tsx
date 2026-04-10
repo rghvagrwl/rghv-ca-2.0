@@ -60,6 +60,7 @@ type TrailSquare = {
 };
 
 const scrambleAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:".split("");
+const panelCopyScrambleAlphabet = "abcdefghijklmnopqrstuvwxyz0123456789".split("");
 type Point = {
   x: number;
   y: number;
@@ -723,6 +724,10 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [displayedFooterDateLabel, setDisplayedFooterDateLabel] = useState("DATE");
   const [displayedVisitorModeLabel, setDisplayedVisitorModeLabel] =
     useState("VISITORS TODAY");
+  const [displayedPanelCopy, setDisplayedPanelCopy] = useState(() =>
+    initialTab ? panelCopyByTab[initialTab] : "",
+  );
+  const [panelCopyHeight, setPanelCopyHeight] = useState(0);
   const [visitorCountMode, setVisitorCountMode] = useState<"today" | "all-time">(
     "today",
   );
@@ -835,11 +840,14 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const homeIdentityDividerRef = useRef<HTMLDivElement | null>(null);
   const homeSectionsStartRef = useRef<HTMLDivElement | null>(null);
   const footerRef = useRef<HTMLDivElement | null>(null);
+  const panelCopyMeasureRef = useRef<HTMLParagraphElement | null>(null);
   const hasStartedSelectorCycleRef = useRef(false);
   const hasInitializedLocationScrambleRef = useRef(false);
   const hasInitializedFooterDateScrambleRef = useRef(false);
   const hasInitializedVisitorModeScrambleRef = useRef(false);
   const hasInitializedLastVisitorScrambleRef = useRef(false);
+  const hasInitializedPanelCopyScrambleRef = useRef(false);
+  const previousDisplayPanelTabRef = useRef<PanelTabId | null>(initialTab);
   const previousLastVisitorModeRef = useRef<"from" | "was">("from");
 
   const closeProfileWindow = () => {
@@ -1920,10 +1928,11 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const startScramble = (
     target: string,
     setValue: (value: string) => void,
-    options?: { stepMs?: number; steps?: number },
+    options?: { stepMs?: number; steps?: number; alphabet?: string[] },
   ) => {
     const steps = options?.steps ?? 11;
     const stepMs = options?.stepMs ?? 30;
+    const alphabet = options?.alphabet ?? scrambleAlphabet;
     let frame = 0;
     const intervalId = window.setInterval(() => {
       frame += 1;
@@ -1939,7 +1948,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           if (index < revealed) {
             return character;
           }
-          return scrambleAlphabet[Math.floor(Math.random() * scrambleAlphabet.length)];
+          return alphabet[Math.floor(Math.random() * alphabet.length)];
         })
         .join("");
       setValue(scrambled);
@@ -1950,6 +1959,137 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     }, stepMs);
     return intervalId;
   };
+
+  const startTransitionScramble = (
+    from: string,
+    target: string,
+    setValue: (value: string) => void,
+    options?: { stepMs?: number; steps?: number; alphabet?: string[] },
+  ) => {
+    const steps = options?.steps ?? 16;
+    const stepMs = options?.stepMs ?? 14;
+    const alphabet = options?.alphabet ?? panelCopyScrambleAlphabet;
+    let frame = 0;
+
+    setValue(from);
+
+    const intervalId = window.setInterval(() => {
+      frame += 1;
+      const progress = Math.min(1, frame / steps);
+      const nextLength = Math.max(
+        0,
+        Math.round(from.length + (target.length - from.length) * progress),
+      );
+      const revealed = Math.floor(progress * nextLength);
+      const scrambled = Array.from({ length: nextLength }, (_, index) => {
+        const sourceCharacter = from[index] ?? "";
+        const targetCharacter = target[index] ?? "";
+        const shapeCharacter = targetCharacter || sourceCharacter;
+        if (index < revealed) {
+          return targetCharacter;
+        }
+        if (shapeCharacter === " ") {
+          return " ";
+        }
+        if (
+          shapeCharacter === "," ||
+          shapeCharacter === "." ||
+          shapeCharacter === "-"
+        ) {
+          return shapeCharacter;
+        }
+        if (!shapeCharacter) {
+          return "";
+        }
+        return alphabet[Math.floor(Math.random() * alphabet.length)];
+      }).join("");
+
+      setValue(scrambled);
+      if (frame >= steps) {
+        window.clearInterval(intervalId);
+        setValue(target);
+      }
+    }, stepMs);
+
+    return intervalId;
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const previousTab = previousDisplayPanelTabRef.current;
+    const nextTab = displayPanelTab;
+    previousDisplayPanelTabRef.current = nextTab;
+
+    if (!nextTab) {
+      const clearFrame = window.requestAnimationFrame(() => {
+        setDisplayedPanelCopy("");
+      });
+      return () => {
+        window.cancelAnimationFrame(clearFrame);
+      };
+    }
+
+    const targetCopy = panelCopyByTab[nextTab];
+    if (!hasInitializedPanelCopyScrambleRef.current) {
+      hasInitializedPanelCopyScrambleRef.current = true;
+      const initialFrame = window.requestAnimationFrame(() => {
+        setDisplayedPanelCopy(targetCopy);
+      });
+      return () => {
+        window.cancelAnimationFrame(initialFrame);
+      };
+    }
+
+    const shouldScramble = previousTab !== null && previousTab !== nextTab;
+    if (!shouldScramble) {
+      const directFrame = window.requestAnimationFrame(() => {
+        setDisplayedPanelCopy(targetCopy);
+      });
+      return () => {
+        window.cancelAnimationFrame(directFrame);
+      };
+    }
+
+    const sourceCopy = panelCopyByTab[previousTab];
+    const intervalId = startTransitionScramble(
+      sourceCopy,
+      targetCopy,
+      setDisplayedPanelCopy,
+      {
+        stepMs: 14,
+        steps: 16,
+        alphabet: panelCopyScrambleAlphabet,
+      },
+    );
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [displayPanelTab]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (!activePanelTab) {
+      const clearFrame = window.requestAnimationFrame(() => {
+        setPanelCopyHeight(0);
+      });
+      return () => {
+        window.cancelAnimationFrame(clearFrame);
+      };
+    }
+
+    const measureFrame = window.requestAnimationFrame(() => {
+      const nextHeight = panelCopyMeasureRef.current?.scrollHeight ?? 0;
+      setPanelCopyHeight((prev) => (prev === nextHeight ? prev : nextHeight));
+    });
+    return () => {
+      window.cancelAnimationFrame(measureFrame);
+    };
+  }, [activePanelTab, displayedPanelCopy]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -2911,11 +3051,19 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               <div
                 className={`min-h-0 transition-opacity duration-220 ease-[cubic-bezier(0.25,1,0.5,1)] ${
                   activePanelTab ? "opacity-100 delay-140" : "opacity-0 delay-0"
-                } ${isSelectorBouncing && activePanelTab ? "selector-jolt" : ""}`}
+                }`}
               >
-                <p className="text-[12px] leading-[1.5] text-black/80 text-justify">
-                  {displayPanelTab ? panelCopyByTab[displayPanelTab] : ""}
-                </p>
+                <div
+                  className="overflow-hidden transition-[height] duration-180 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                  style={{ height: activePanelTab ? panelCopyHeight : 0 }}
+                >
+                  <p
+                    ref={panelCopyMeasureRef}
+                    className="text-[12px] leading-[1.5] text-black/80 text-justify"
+                  >
+                    {displayedPanelCopy}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
