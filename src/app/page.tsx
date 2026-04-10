@@ -56,22 +56,7 @@ type TrailSquare = {
   size: number;
   lockedColor?: boolean;
 };
-type FooterRippleLetterEffect = {
-  rotate: number;
-  scale: number;
-  lift: number;
-  color: string;
-  duration: number;
-};
 
-const cursorCycleColors = [
-  "#00A1FF",
-  "#36D744",
-  "#E8D31E",
-  "#ED49FF",
-  "#FF3E5E",
-  "#FF6D29",
-];
 const scrambleAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:".split("");
 type Point = {
   x: number;
@@ -109,6 +94,33 @@ const panelCopyByTab: Record<PanelTabId, string> = {
   entries:
     "A running collection of thoughts. Fragments, notes, and ideas that don't belong anywhere else. Some unfinished, some unresolved. Mostly just things that don't need to be finished to be worth keeping.",
 };
+const topMarqueeItems = [
+  "Built by doing",
+  "Start before it makes sense",
+  "Clarity through iteration",
+  "Nothing here is final",
+  "Thinking happens through making",
+  "No single entry point",
+  "Content reorganizes on reload",
+  "Content order is not intentional",
+  "This is one of many possible versions",
+  "In progress, constantly evolving",
+  "Built in 04/26",
+  "This version is not final",
+  "( •_•)O*¯`·.¸.·´¯`°Q(•_• )",
+  "•͡˘㇁•͡˘",
+  "୧༼ಠ益ಠ༽୨",
+  "ᕙ(⇀‸↼‶)ᕗ",
+  "ʕっ•ᴥ•ʔっ",
+] as const;
+const shuffledTopMarqueeItems = (() => {
+  const items = topMarqueeItems.map((item) => item.toUpperCase());
+  for (let index = items.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
+  }
+  return items;
+})();
 const cursorTrailPalette = [
   "#00C8FF",
   "#FF4FD9",
@@ -656,7 +668,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [isSelectorGroupHovered, setIsSelectorGroupHovered] = useState(false);
   const [hoveredLocationToggle, setHoveredLocationToggle] = useState(false);
   const [hoveredTrailToggle, setHoveredTrailToggle] = useState(false);
-  const [hoveredFooterBrand, setHoveredFooterBrand] = useState(false);
   const [hoveredOutboundLink, setHoveredOutboundLink] = useState(false);
   const [cursorButtonTiltDeg, setCursorButtonTiltDeg] = useState(0);
   const [hoveredIntroToggle, setHoveredIntroToggle] = useState(false);
@@ -681,13 +692,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [visitorCountMode, setVisitorCountMode] = useState<"today" | "all-time">(
     "today",
   );
-  const [footerBrandRippleToken, setFooterBrandRippleToken] = useState(0);
-  const [footerLogoRippleEffects, setFooterLogoRippleEffects] = useState<
-    Array<FooterRippleLetterEffect | null>
-  >([]);
-  const [footerBylineRippleEffects, setFooterBylineRippleEffects] = useState<
-    Array<FooterRippleLetterEffect | null>
-  >([]);
   const [hoveredProfileImage, setHoveredProfileImage] = useState(false);
   const [profileTooltipFlip, setProfileTooltipFlip] = useState(false);
   const [isEntriesHeaderHovered, setIsEntriesHeaderHovered] = useState(false);
@@ -1709,7 +1713,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       : "MAR 29 2026 8:04PM"
     : null;
   const cursorTrailModeLabel = hoveredTrailToggle ? "SWITCH CURSOR MODE" : null;
-  const cursorFooterBrandLabel = hoveredFooterBrand ? "THANKS FOR VISITING!" : null;
   const cursorIntroLabel = hoveredIntroToggle ? "SITE INFO" : null;
   const activeCursorBadgeText = cursorControlLabel
     ? cursorControlLabel
@@ -1721,8 +1724,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
         ? cursorSelectorLabel
       : cursorOutboundLinkLabel
         ? cursorOutboundLinkLabel
-      : cursorFooterBrandLabel
-        ? cursorFooterBrandLabel
       : cursorTrailModeLabel
         ? cursorTrailModeLabel
         : cursorIntroLabel
@@ -1853,71 +1854,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       : activeVisitorCountTarget === 1
         ? "VISITOR ALL-TIME"
         : "VISITORS ALL-TIME";
-
-  const buildFooterRippleEffects = (
-    text: string,
-    style: "logo" | "byline",
-  ): Array<FooterRippleLetterEffect | null> =>
-    [...text].map((character) => {
-      if (character === " ") {
-        return null;
-      }
-      const isLogo = style === "logo";
-      return {
-        rotate: Math.floor(Math.random() * (isLogo ? 23 : 19)) - (isLogo ? 11 : 9),
-        scale: isLogo ? 2.2 + Math.random() * 0.6 : 1.55 + Math.random() * 0.5,
-        lift: isLogo
-          ? -(11 + Math.floor(Math.random() * 11))
-          : -(6 + Math.floor(Math.random() * 9)),
-        color: isLogo
-          ? cursorCycleColors[Math.floor(Math.random() * cursorCycleColors.length)]
-          : `hsl(${Math.floor(Math.random() * 360)} 100% 54%)`,
-        duration: isLogo ? 430 + Math.floor(Math.random() * 160) : 390 + Math.floor(Math.random() * 150),
-      };
-    });
-
-  const triggerFooterBrandRipple = () => {
-    setFooterLogoRippleEffects(buildFooterRippleEffects("RGHV.CA", "logo"));
-    setFooterBylineRippleEffects(buildFooterRippleEffects("BY RAGHAV AGARWAL", "byline"));
-    setFooterBrandRippleToken((prev) => prev + 1);
-  };
-
-  const renderFooterRippleText = (
-    text: string,
-    effects: Array<FooterRippleLetterEffect | null>,
-    token: number,
-    delayOffsetMs = 0,
-  ) => (
-    <span aria-hidden="true">
-      {[...text].map((character, index) => {
-        if (character === " ") {
-          return <span key={`${token}-space-${index}`}>&nbsp;</span>;
-        }
-        const effect = effects[index];
-        return (
-          <span
-            key={`${token}-${index}-${character}`}
-            className={effect ? "inline-block footer-letter-ripple" : "inline-block"}
-            style={
-              effect
-                ? ({
-                    "--footer-letter-rotate": `${effect.rotate}deg`,
-                    "--footer-letter-scale": String(effect.scale),
-                    "--footer-letter-lift": `${effect.lift}px`,
-                    "--footer-letter-color": effect.color,
-                    animationDelay: `${delayOffsetMs + index * 42}ms`,
-                    animationDuration: `${effect.duration}ms`,
-                  } as CSSProperties)
-                : undefined
-            }
-          >
-            {character}
-          </span>
-        );
-      })}
-    </span>
-  );
-
   const startScramble = (
     target: string,
     setValue: (value: string) => void,
@@ -2055,12 +1991,31 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
   return (
     <main className="relative flex min-h-screen flex-col bg-background pb-6 pt-4">
+      <div className="-mt-4 mb-4 w-full overflow-hidden bg-black/5 py-1 text-[10px] text-black/40">
+        <div className="top-news-marquee-track">
+          {[0, 1].map((copyIndex) => (
+            <div
+              key={copyIndex}
+              className="top-news-marquee-list"
+              aria-hidden={copyIndex === 1}
+            >
+              {shuffledTopMarqueeItems.map((item) => (
+                <span
+                  key={`${copyIndex}-${item}`}
+                  className="whitespace-nowrap tracking-[0.11em]"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
       {cursorControlLabel ||
       cursorLocationLabel ||
       cursorDividerLabel ||
       cursorSelectorLabel ||
       cursorOutboundLinkLabel ||
-      cursorFooterBrandLabel ||
       cursorTrailModeLabel ||
       cursorIntroLabel ||
       cursorProfileImageLabel ||
@@ -2092,10 +2047,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
           ) : cursorOutboundLinkLabel ? (
             <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
               {cursorOutboundLinkLabel}
-            </span>
-          ) : cursorFooterBrandLabel ? (
-            <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
-              {cursorFooterBrandLabel}
             </span>
           ) : cursorTrailModeLabel ? (
             <span className="inline-flex items-center whitespace-nowrap bg-[#DEDEDE] px-2 py-1 text-[10px] font-medium tracking-[0.05em] text-black">
@@ -2280,7 +2231,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             className={`w-full max-w-[480px] min-[940px]:order-3 ${reveal(0).className}`}
             style={reveal(0).style}
           >
-            <div className="flex items-center justify-between text-[12px] uppercase tracking-[0.02em] text-black/40">
+            <div className="flex items-center justify-between text-[12px] uppercase tracking-[0.02em] text-black/80">
               <button
                 type="button"
                 className="navbar-click location-switch-click inline-flex flex-1 cursor-crosshair items-center justify-between pr-3 transition-colors hover:text-black/60"
@@ -2381,7 +2332,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   isIntroOpen ? "opacity-100 delay-320" : "opacity-0 delay-0"
                 }`}
               >
-                <p className="text-[12px] leading-[1.5] text-black/40 text-justify">
+                <p className="text-[12px] leading-[1.5] text-black/80 text-justify">
                   The idea for this version of the website began in March of
                   2025, then was paused due to a lack of creative vision. It
                   was revisited a few weeks later following a shift in
@@ -2392,7 +2343,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   making.
                 </p>
 
-                <p className="mt-2 text-[12px] leading-[1.5] text-black/40 text-justify">
+                <p className="mt-2 text-[12px] leading-[1.5] text-black/80 text-justify">
                   Inspired by the works of{" "}
                   <a
                     href="https://adamho.com"
@@ -2847,7 +2798,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                   activePanelTab ? "opacity-100 delay-140" : "opacity-0 delay-0"
                 } ${isSelectorBouncing && activePanelTab ? "selector-jolt" : ""}`}
               >
-                <p className="text-[12px] leading-[1.5] text-black/40 text-justify">
+                <p className="text-[12px] leading-[1.5] text-black/80 text-justify">
                   {displayPanelTab ? panelCopyByTab[displayPanelTab] : ""}
                 </p>
               </div>
@@ -2900,7 +2851,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 {!truncateModeActive || expandedInTruncate.contextIdentity ? (
                   <div className="mt-2 columns-1 gap-6 md:columns-2 xl:gap-6">
                     <p
-                      className="max-w-[52rem] text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                      className="max-w-[52rem] text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line"
                       style={{ fontFeatureSettings: "'salt' 1" }}
                     >
                       <button
@@ -2910,7 +2861,13 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                           isProfileWindowOpen ? "raghav-link-active" : ""
                         }`}
                       >
-                        <span className="whitespace-nowrap">Raghav</span>
+                        <span
+                          className={`whitespace-nowrap ${
+                            isProfileWindowOpen ? "text-[#00A1FF]" : ""
+                          }`}
+                        >
+                          Raghav
+                        </span>
                         <span
                           aria-hidden="true"
                           className={`inline-flex overflow-hidden align-middle leading-none transition-[max-width,opacity,margin-left,transform] duration-240 ease-[cubic-bezier(0.22,1,0.36,1)] ${
@@ -2919,7 +2876,13 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                               : "ml-0 max-w-0 -translate-x-1 opacity-0"
                           }`}
                         >
-                          <span className="text-[16px] leading-none text-black/80">×</span>
+                          <span
+                            className={`text-[16px] leading-none ${
+                              isProfileWindowOpen ? "text-[#00A1FF]" : "text-black/80"
+                            }`}
+                          >
+                            ×
+                          </span>
                         </span>
                       </button>
                       {identityBodyOne}
@@ -3232,7 +3195,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                       <div className="mt-2 grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div>
                           <p
-                            className="min-h-0 overflow-hidden text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                            className="min-h-0 overflow-hidden text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line"
                             style={{
                               fontFeatureSettings: "'salt' 1",
                               ...(isEntryExpanded
@@ -3329,7 +3292,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
                         {!truncateModeActive || expandedInTruncate.contextEducation ? (
                           <p
-                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line"
                             style={{ fontFeatureSettings: "'salt' 1" }}
                           >
                             {educationBody}
@@ -3356,7 +3319,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
                         {!truncateModeActive || expandedInTruncate.contextExperience ? (
                           <p
-                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line"
                             style={{ fontFeatureSettings: "'salt' 1" }}
                           >
                             {experienceBody}
@@ -3396,7 +3359,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
                         {!truncateModeActive || expandedInTruncate.contextIdeas ? (
                           <p
-                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line"
                             style={{ fontFeatureSettings: "'salt' 1" }}
                           >
                             {ideasBody}
@@ -3423,7 +3386,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
                         {!truncateModeActive || expandedInTruncate.contextBooks ? (
                           <p
-                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                            className="mt-2 max-w-[52rem] text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line"
                             style={{ fontFeatureSettings: "'salt' 1" }}
                           >
                             {booksBody}
@@ -3592,7 +3555,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
             {!truncateModeActive || expandedInTruncate.contextProfile ? (
               <div className="mt-2 columns-1 gap-6 md:columns-2 xl:gap-6">
                 <p
-                  className="max-w-[52rem] text-[16px] leading-[1.5] text-black/40 text-justify whitespace-pre-line"
+                  className="max-w-[52rem] text-[16px] leading-[1.5] text-black/80 text-justify whitespace-pre-line"
                   style={{ fontFeatureSettings: "'salt' 1" }}
                 >
                   {profileBody}
@@ -3604,13 +3567,14 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
 
         <div
           ref={footerRef}
-          className="ui-wide-letter-spacing order-last mt-6 border-t border-black/10 pt-2 text-[12px] leading-[1.5] text-black/40"
+          className="ui-wide-letter-spacing order-last mt-6 border-t border-black/10 pt-2 text-[12px] leading-[1.5] text-black/80"
         >
           <div className="grid gap-6 min-[940px]:grid-cols-3 xl:gap-20">
           <div className="flex items-center justify-between">
             <span>LAST VISITOR FROM</span>
             <span>{lastVisitorLabel}</span>
           </div>
+          <div className="flex items-center justify-center text-center" />
           <button
             type="button"
             className="flex cursor-crosshair items-center justify-between transition-colors hover:text-black/60"
@@ -3652,35 +3616,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
               {animatedVisitorCount} {displayedVisitorModeLabel}
             </span>
           </button>
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              className="flex w-full cursor-crosshair items-center justify-between transition-colors hover:text-black/60"
-              style={{ cursor: "crosshair" }}
-              onMouseEnter={(event) => {
-                updateCursorBadgePosition(event);
-                setHoveredFooterBrand(true);
-              }}
-              onMouseMove={updateCursorBadgePosition}
-              onMouseLeave={() => {
-                setHoveredFooterBrand(false);
-              }}
-              onClick={triggerFooterBrandRipple}
-              aria-label="Animate footer brand text"
-            >
-              {renderFooterRippleText(
-                "RGHV.CA",
-                footerLogoRippleEffects,
-                footerBrandRippleToken,
-              )}
-              {renderFooterRippleText(
-                "BY RAGHAV AGARWAL",
-                footerBylineRippleEffects,
-                footerBrandRippleToken,
-                "RGHV.CA".length * 42 + 100,
-              )}
-            </button>
-          </div>
           </div>
         </div>
       </div>
