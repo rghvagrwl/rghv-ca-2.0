@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const VISITOR_COOKIE_NAME = "rghv_vid";
+const IGNORE_VISITOR_COOKIE_NAME = "rghv_ignore_visitor";
 const LAST_VISITOR_KEY = "footer:last-visitor";
 const ALL_TIME_VISITORS_KEY = "footer:visitors:all-time";
 const DAY_SECONDS = 60 * 60 * 24;
@@ -158,6 +159,7 @@ export async function GET() {
   const todayVisitorsKey = `footer:visitors:${todayKey}`;
 
   const cookieStore = await cookies();
+  const isIgnoredVisitor = cookieStore.get(IGNORE_VISITOR_COOKIE_NAME)?.value === "1";
   let visitorId = cookieStore.get(VISITOR_COOKIE_NAME)?.value;
   let shouldSetCookie = false;
   if (!visitorId) {
@@ -167,7 +169,7 @@ export async function GET() {
 
   let visitorsToday: number | null = null;
   let visitorsAllTime: number | null = null;
-  let lastVisitorLabel = currentVisitorLabel;
+  let lastVisitorLabel = isIgnoredVisitor ? "UNKNOWN, UNKNOWN COUNTRY" : currentVisitorLabel;
 
   const redisClient = await getRedisClient();
   if (redisClient) {
@@ -175,15 +177,19 @@ export async function GET() {
     if (previousLastVisitor) {
       lastVisitorLabel = normalizeVisitorLabel(previousLastVisitor);
     }
-    await redisClient.set(LAST_VISITOR_KEY, currentVisitorLabel);
-    await redisClient.sAdd(todayVisitorsKey, visitorId);
-    await redisClient.sAdd(ALL_TIME_VISITORS_KEY, visitorId);
-    await redisClient.expire(todayVisitorsKey, DAY_SECONDS * 3);
+
+    if (!isIgnoredVisitor) {
+      await redisClient.set(LAST_VISITOR_KEY, currentVisitorLabel);
+      await redisClient.sAdd(todayVisitorsKey, visitorId);
+      await redisClient.sAdd(ALL_TIME_VISITORS_KEY, visitorId);
+      await redisClient.expire(todayVisitorsKey, DAY_SECONDS * 3);
+    }
+
     visitorsToday = await redisClient.sCard(todayVisitorsKey);
     visitorsAllTime = await redisClient.sCard(ALL_TIME_VISITORS_KEY);
 
     // Backfill all-time from today's set if all-time tracking started later.
-    if (visitorsAllTime < visitorsToday) {
+    if (!isIgnoredVisitor && visitorsAllTime < visitorsToday) {
       const todayMembers = await redisClient.sMembers(todayVisitorsKey);
       for (const member of todayMembers) {
         await redisClient.sAdd(ALL_TIME_VISITORS_KEY, member);
@@ -196,21 +202,24 @@ export async function GET() {
       lastVisitorLabel = normalizeVisitorLabel(previousLastVisitor.result);
     }
 
-    await kvRequest(
-      `/set/${encodeURIComponent(LAST_VISITOR_KEY)}/${encodeURIComponent(currentVisitorLabel)}`,
-      {
-        method: "POST",
-      },
-    );
+    if (!isIgnoredVisitor) {
+      await kvRequest(
+        `/set/${encodeURIComponent(LAST_VISITOR_KEY)}/${encodeURIComponent(currentVisitorLabel)}`,
+        {
+          method: "POST",
+        },
+      );
 
-    await kvRequest(
-      `/sadd/${encodeURIComponent(todayVisitorsKey)}/${encodeURIComponent(visitorId)}`,
-      { method: "POST" },
-    );
-    await kvRequest(
-      `/sadd/${encodeURIComponent(ALL_TIME_VISITORS_KEY)}/${encodeURIComponent(visitorId)}`,
-      { method: "POST" },
-    );
+      await kvRequest(
+        `/sadd/${encodeURIComponent(todayVisitorsKey)}/${encodeURIComponent(visitorId)}`,
+        { method: "POST" },
+      );
+      await kvRequest(
+        `/sadd/${encodeURIComponent(ALL_TIME_VISITORS_KEY)}/${encodeURIComponent(visitorId)}`,
+        { method: "POST" },
+      );
+    }
+
     const todayCountResult = await kvRequest(`/scard/${encodeURIComponent(todayVisitorsKey)}`);
     if (typeof todayCountResult?.result === "number") {
       visitorsToday = todayCountResult.result;
@@ -224,8 +233,8 @@ export async function GET() {
   }
 
   const response = NextResponse.json({
-    city,
-    country,
+    city: isIgnoredVisitor ? "UNKNOWN" : city,
+    country: isIgnoredVisitor ? "UNKNOWN COUNTRY" : country,
     lastVisitorLabel,
     visitorsToday,
     visitorsAllTime,

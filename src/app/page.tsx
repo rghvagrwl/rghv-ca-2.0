@@ -119,6 +119,8 @@ const cursorTrailPalette = [
 ];
 const fixedBottomWorkProjectId = "no-category";
 const mixedContextSectionIds = ["context:education", "context:current"] as const;
+const IGNORE_VISITOR_COOKIE_NAME = "rghv_ignore_visitor";
+const IGNORE_VISITOR_QUERY_PARAM = "ignoreVisitor";
 const workProjects = [
   {
     id: "unordinary",
@@ -824,6 +826,27 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   useEffect(() => {
     const timeoutId = window.setTimeout(() => setIsLoaded(true), 40);
     return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const url = new URL(window.location.href);
+    const ignoreVisitorParam = url.searchParams.get(IGNORE_VISITOR_QUERY_PARAM);
+    if (ignoreVisitorParam !== "1" && ignoreVisitorParam !== "0") {
+      return;
+    }
+
+    const maxAge = 60 * 60 * 24 * 365 * 5;
+    if (ignoreVisitorParam === "1") {
+      document.cookie = `${IGNORE_VISITOR_COOKIE_NAME}=1; path=/; max-age=${maxAge}; samesite=lax`;
+    } else {
+      document.cookie = `${IGNORE_VISITOR_COOKIE_NAME}=; path=/; max-age=0; samesite=lax`;
+    }
+
+    url.searchParams.delete(IGNORE_VISITOR_QUERY_PARAM);
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   }, []);
 
   useEffect(() => {
