@@ -10,6 +10,7 @@ const LAST_VISITOR_KEY = "footer:last-visitor";
 const ALL_TIME_VISITORS_KEY = "footer:visitors:all-time";
 const DAY_SECONDS = 60 * 60 * 24;
 const regionDisplayNames = new Intl.DisplayNames(["en"], { type: "region" });
+const BLOCKED_VISITOR_LOCATIONS = new Set(["MADIUN|INDONESIA"]);
 
 function decodeLegacyText(value: string) {
   try {
@@ -87,6 +88,20 @@ function normalizeVisitorLabel(rawLabel: string) {
     return city;
   }
   return `${city}, ${country}`;
+}
+
+function isBlockedVisitorLocation(city: string, country: string) {
+  return BLOCKED_VISITOR_LOCATIONS.has(
+    `${city.trim().toUpperCase()}|${country.trim().toUpperCase()}`,
+  );
+}
+
+function isBlockedVisitorLabel(label: string) {
+  const normalized = normalizeVisitorLabel(label);
+  const [rawCity = "UNKNOWN", ...countryParts] = normalized.split(",");
+  const city = rawCity.trim().toUpperCase();
+  const country = countryParts.join(",").trim().toUpperCase();
+  return isBlockedVisitorLocation(city, country);
 }
 
 type LastVisitorRecord = {
@@ -203,6 +218,13 @@ async function getRedisClient() {
 
 export async function GET() {
   const requestHeaders = await headers();
+  const userAgent = requestHeaders.get("user-agent") ?? "";
+  const purposeHeader = requestHeaders.get("purpose") ?? requestHeaders.get("sec-purpose") ?? "";
+  const isLikelyBot =
+    /\b(bot|crawler|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegrambot|discordbot|twitterbot|linkedinbot|slackbot|embedly)\b/i.test(
+      userAgent,
+    );
+  const isLikelyPrefetch = /\bprefetch\b/i.test(purposeHeader);
   const city = decodeLegacyText(requestHeaders.get("x-vercel-ip-city") ?? "")
     .trim()
     .toUpperCase() || "UNKNOWN";
@@ -214,6 +236,8 @@ export async function GET() {
 
   const cookieStore = await cookies();
   const isIgnoredVisitor = cookieStore.get(IGNORE_VISITOR_COOKIE_NAME)?.value === "1";
+  const isBlockedLocation = isBlockedVisitorLocation(city, country);
+  const shouldTrackVisitor = !isIgnoredVisitor && !isLikelyBot && !isLikelyPrefetch;
   let visitorId = cookieStore.get(VISITOR_COOKIE_NAME)?.value;
   let shouldSetCookie = false;
   if (!visitorId) {
@@ -223,7 +247,7 @@ export async function GET() {
 
   let visitorsToday: number | null = null;
   let visitorsAllTime: number | null = null;
-  let lastVisitorLabel = isIgnoredVisitor ? "UNKNOWN, UNKNOWN COUNTRY" : currentVisitorLabel;
+  let lastVisitorLabel = shouldTrackVisitor ? currentVisitorLabel : "UNKNOWN, UNKNOWN COUNTRY";
   let lastVisitorSeenAt: number | null = null;
 
   const redisClient = await getRedisClient();
@@ -231,11 +255,13 @@ export async function GET() {
     const previousLastVisitor = await redisClient.get(LAST_VISITOR_KEY);
     if (previousLastVisitor) {
       const previousRecord = parseLastVisitorRecord(previousLastVisitor);
-      lastVisitorLabel = previousRecord.label;
-      lastVisitorSeenAt = previousRecord.seenAt;
+      if (!isBlockedVisitorLabel(previousRecord.label)) {
+        lastVisitorLabel = previousRecord.label;
+        lastVisitorSeenAt = previousRecord.seenAt;
+      }
     }
 
-    if (!isIgnoredVisitor) {
+    if (shouldTrackVisitor && !isBlockedLocation) {
       await redisClient.set(
         LAST_VISITOR_KEY,
         serializeLastVisitorRecord(currentVisitorLabel, Date.now()),
@@ -249,7 +275,7 @@ export async function GET() {
     visitorsAllTime = await redisClient.sCard(ALL_TIME_VISITORS_KEY);
 
     // Backfill all-time from today's set if all-time tracking started later.
-    if (!isIgnoredVisitor && visitorsAllTime < visitorsToday) {
+    if (shouldTrackVisitor && !isBlockedLocation && visitorsAllTime < visitorsToday) {
       const todayMembers = await redisClient.sMembers(todayVisitorsKey);
       for (const member of todayMembers) {
         await redisClient.sAdd(ALL_TIME_VISITORS_KEY, member);
@@ -260,11 +286,13 @@ export async function GET() {
     const previousLastVisitor = await kvRequest(`/get/${encodeURIComponent(LAST_VISITOR_KEY)}`);
     if (typeof previousLastVisitor?.result === "string" && previousLastVisitor.result.length > 0) {
       const previousRecord = parseLastVisitorRecord(previousLastVisitor.result);
-      lastVisitorLabel = previousRecord.label;
-      lastVisitorSeenAt = previousRecord.seenAt;
+      if (!isBlockedVisitorLabel(previousRecord.label)) {
+        lastVisitorLabel = previousRecord.label;
+        lastVisitorSeenAt = previousRecord.seenAt;
+      }
     }
 
-    if (!isIgnoredVisitor) {
+    if (shouldTrackVisitor && !isBlockedLocation) {
       await kvRequest(
         `/set/${encodeURIComponent(LAST_VISITOR_KEY)}/${encodeURIComponent(
           serializeLastVisitorRecord(currentVisitorLabel, Date.now()),
@@ -297,8 +325,8 @@ export async function GET() {
   }
 
   const response = NextResponse.json({
-    city: isIgnoredVisitor ? "UNKNOWN" : city,
-    country: isIgnoredVisitor ? "UNKNOWN COUNTRY" : country,
+    city: shouldTrackVisitor && !isBlockedLocation ? city : "UNKNOWN",
+    country: shouldTrackVisitor && !isBlockedLocation ? country : "UNKNOWN COUNTRY",
     lastVisitorLabel,
     lastVisitorSeenAt,
     visitorsToday,

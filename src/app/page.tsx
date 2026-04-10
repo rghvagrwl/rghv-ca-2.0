@@ -3010,7 +3010,7 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                     }
                     if (!canUseTruncateControl) {
                       triggerDisabledControlFeedback("truncate");
-                      showCenterPopup("SELECT A SECTION");
+                      showCenterPopup(activePanelTab ? "SELECT SHOW ALL" : "SELECT A SECTION");
                       return;
                     }
                     setIsTruncateMode((prev) => {
