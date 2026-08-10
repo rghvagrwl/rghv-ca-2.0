@@ -128,7 +128,6 @@ const fixedBottomWorkProjectId = "no-category";
 const mixedContextSectionIds = ["context:education", "context:current"] as const;
 const IGNORE_VISITOR_COOKIE_NAME = "rghv_ignore_visitor";
 const IGNORE_VISITOR_QUERY_PARAM = "ignoreVisitor";
-const ALL_TIME_SINCE_LABEL = "SINCE APR 9, 2026";
 
 function getInitialMixedWorkEntriesOrder() {
   return buildMixedOrderWithContextSections(
@@ -731,7 +730,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [isLocationScrambling, setIsLocationScrambling] = useState(false);
   const [scrambledClock, setScrambledClock] = useState("");
   const [strokeCycleStep] = useState(-1);
-  const [footerDateLabel, setFooterDateLabel] = useState("DATE");
   const [lastVisitorLabel, setLastVisitorLabel] = useState("UNKNOWN, UNKNOWN COUNTRY");
   const [lastVisitorSeenAt, setLastVisitorSeenAt] = useState<number | null>(null);
   const [lastVisitorMode, setLastVisitorMode] = useState<"from" | "was">("from");
@@ -745,7 +743,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const [visitorsAllTime, setVisitorsAllTime] = useState(0);
   const [animatedVisitorCount, setAnimatedVisitorCount] = useState(0);
   const [isFooterInView, setIsFooterInView] = useState(false);
-  const [displayedFooterDateLabel, setDisplayedFooterDateLabel] = useState("DATE");
   const [displayedVisitorModeLabel, setDisplayedVisitorModeLabel] =
     useState("VISITORS TODAY");
   const [displayedPanelCopy, setDisplayedPanelCopy] = useState(() =>
@@ -864,7 +861,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
   const panelCopyMeasureRef = useRef<HTMLParagraphElement | null>(null);
   const hasStartedSelectorCycleRef = useRef(false);
   const hasInitializedLocationScrambleRef = useRef(false);
-  const hasInitializedFooterDateScrambleRef = useRef(false);
   const hasInitializedVisitorModeScrambleRef = useRef(false);
   const hasInitializedLastVisitorScrambleRef = useRef(false);
   const hasInitializedPanelCopyScrambleRef = useRef(false);
@@ -928,18 +924,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
     }
     let isMounted = true;
     const timer = window.setTimeout(async () => {
-      const now = new Date();
-      const dateLabel = new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-        .format(now)
-        .toUpperCase();
-      if (isMounted) {
-        setFooterDateLabel(dateLabel);
-      }
-
       let city = "UNKNOWN";
       let country = "UNKNOWN COUNTRY";
       let nextVisitorsToday = 0;
@@ -2178,31 +2162,6 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
       window.clearTimeout(endTimeout);
     };
   }, [activeLocation.code, activeLocation.city, activeLocation.timeZone]);
-
-  const footerDateTargetLabel =
-    visitorCountMode === "today" ? footerDateLabel : ALL_TIME_SINCE_LABEL;
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    if (!hasInitializedFooterDateScrambleRef.current) {
-      hasInitializedFooterDateScrambleRef.current = true;
-      const initialFrame = window.requestAnimationFrame(() => {
-        setDisplayedFooterDateLabel(footerDateTargetLabel);
-      });
-      return () => {
-        window.cancelAnimationFrame(initialFrame);
-      };
-    }
-    const intervalId = startScramble(footerDateTargetLabel, setDisplayedFooterDateLabel, {
-      stepMs: 30,
-      steps: 12,
-    });
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [footerDateTargetLabel]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -3978,9 +3937,20 @@ export function SitePage({ defaultTab = null }: SitePageProps) {
                 : "Show visitors today"
             }
           >
-            <span>{displayedFooterDateLabel}</span>
-            <span>
-              {animatedVisitorCount} {displayedVisitorModeLabel}
+            <span>{displayedVisitorModeLabel}</span>
+            <span className="tabular-nums">
+              {(() => {
+                const significant = String(animatedVisitorCount);
+                const leadingZeros = "0".repeat(
+                  Math.max(0, 9 - significant.length),
+                );
+                return (
+                  <>
+                    <span className="text-black/20">{leadingZeros}</span>
+                    {significant}
+                  </>
+                );
+              })()}
             </span>
           </button>
           </div>
