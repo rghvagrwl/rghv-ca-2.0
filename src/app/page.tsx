@@ -20,7 +20,7 @@ const profileBody =
 const externalLinks = [
   { label: "LINKEDIN", href: "https://linkedin.com/in/rghv-agrwl", disabled: false },
   { label: "EMAIL", href: "mailto:rghvagwl@gmail.com", disabled: false },
-  { label: "X", href: "https://x.com/raghaav", disabled: false },
+  { label: "X", href: "https://x.com/varksed", disabled: false },
   { label: "UNORDINARY", href: "#", disabled: true },
 ] as const;
 
